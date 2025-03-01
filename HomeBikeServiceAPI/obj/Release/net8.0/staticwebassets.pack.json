@@ -1,0 +1,73 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeParts\\40d7d6da-1660-49d0-b455-af9050c7e73c_OIP.jpg",
+      "PackagePath": "staticwebassets\\BikeParts\\40d7d6da-1660-49d0-b455-af9050c7e73c_OIP.jpg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeParts\\878f8368-0e78-4570-a86d-cdbbedfcbab5_OIP.jpg",
+      "PackagePath": "staticwebassets\\BikeParts\\878f8368-0e78-4570-a86d-cdbbedfcbab5_OIP.jpg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeParts\\ff758d0f-b2f9-4d57-b9ee-91aac30ad999_brakes.jpg",
+      "PackagePath": "staticwebassets\\BikeParts\\ff758d0f-b2f9-4d57-b9ee-91aac30ad999_brakes.jpg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\1944b5e3-96bd-47db-bb0c-e512ac44cfb3_DFD_LvL1.png",
+      "PackagePath": "staticwebassets\\BikeProducts\\1944b5e3-96bd-47db-bb0c-e512ac44cfb3_DFD_LvL1.png"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\2ac132d3-4a83-46ff-b192-b85761927f37_shine.jpg",
+      "PackagePath": "staticwebassets\\BikeProducts\\2ac132d3-4a83-46ff-b192-b85761927f37_shine.jpg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\3dc82e75-e1ed-45ab-a82a-ccbb15f8dec4_Beneli.jpeg",
+      "PackagePath": "staticwebassets\\BikeProducts\\3dc82e75-e1ed-45ab-a82a-ccbb15f8dec4_Beneli.jpeg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\4bbfdb37-b061-41be-bbe3-7db67b76d300_cbr.jpeg",
+      "PackagePath": "staticwebassets\\BikeProducts\\4bbfdb37-b061-41be-bbe3-7db67b76d300_cbr.jpeg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\6a93ccf2-e25e-438d-bc9f-bda0b742dff1_Beneli.jpeg",
+      "PackagePath": "staticwebassets\\BikeProducts\\6a93ccf2-e25e-438d-bc9f-bda0b742dff1_Beneli.jpeg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\7765fbf1-5485-4213-a22d-955e790043bd_ERD-Database.png",
+      "PackagePath": "staticwebassets\\BikeProducts\\7765fbf1-5485-4213-a22d-955e790043bd_ERD-Database.png"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\b07d50f7-d158-45ca-b6c7-f8568f0c1c67_benelli-tnt-300-640.jpg",
+      "PackagePath": "staticwebassets\\BikeProducts\\b07d50f7-d158-45ca-b6c7-f8568f0c1c67_benelli-tnt-300-640.jpg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\c95f6059-8bed-4df4-80c4-92576b65b274_Beneli.jpeg",
+      "PackagePath": "staticwebassets\\BikeProducts\\c95f6059-8bed-4df4-80c4-92576b65b274_Beneli.jpeg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\ca683f6c-e2af-4633-8262-f5ad86f908aa_congress.jpeg",
+      "PackagePath": "staticwebassets\\BikeProducts\\ca683f6c-e2af-4633-8262-f5ad86f908aa_congress.jpeg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\e8b57cf0-eb3e-4f4c-b16f-edae885bb0b6_Beneli.jpeg",
+      "PackagePath": "staticwebassets\\BikeProducts\\e8b57cf0-eb3e-4f4c-b16f-edae885bb0b6_Beneli.jpeg"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.HomeBikeServiceAPI.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.build.HomeBikeServiceAPI.props",
+      "PackagePath": "build\\HomeBikeServiceAPI.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.HomeBikeServiceAPI.props",
+      "PackagePath": "buildMultiTargeting\\HomeBikeServiceAPI.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.buildTransitive.HomeBikeServiceAPI.props",
+      "PackagePath": "buildTransitive\\HomeBikeServiceAPI.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
