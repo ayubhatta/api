@@ -256,6 +256,22 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\BikeProducts\ca683f6c-e2af-4633-8262-f5ad86f908aa_congress.jpeg))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\BikeProducts\caa07661-2b6a-4fd0-aed9-0f790464df66_images.jpeg))">
+      <SourceType>Package</SourceType>
+      <SourceId>HomeBikeServiceAPI</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/HomeBikeServiceAPI</BasePath>
+      <RelativePath>BikeProducts/caa07661-2b6a-4fd0-aed9-0f790464df66_images.jpeg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\BikeProducts\caa07661-2b6a-4fd0-aed9-0f790464df66_images.jpeg))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\BikeProducts\e8b57cf0-eb3e-4f4c-b16f-edae885bb0b6_Beneli.jpeg))">
       <SourceType>Package</SourceType>
       <SourceId>HomeBikeServiceAPI</SourceId>
@@ -271,6 +287,22 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\BikeProducts\e8b57cf0-eb3e-4f4c-b16f-edae885bb0b6_Beneli.jpeg))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\BikeProducts\ed8854c8-0120-4021-af98-950675bd72c2_CFMOTO-150NK_n.jpg))">
+      <SourceType>Package</SourceType>
+      <SourceId>HomeBikeServiceAPI</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/HomeBikeServiceAPI</BasePath>
+      <RelativePath>BikeProducts/ed8854c8-0120-4021-af98-950675bd72c2_CFMOTO-150NK_n.jpg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\BikeProducts\ed8854c8-0120-4021-af98-950675bd72c2_CFMOTO-150NK_n.jpg))</OriginalItemSpec>
     </StaticWebAsset>
   </ItemGroup>
 </Project>

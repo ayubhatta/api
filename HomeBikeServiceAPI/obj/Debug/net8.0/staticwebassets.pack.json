@@ -65,8 +65,16 @@
       "PackagePath": "staticwebassets\\BikeProducts\\ca683f6c-e2af-4633-8262-f5ad86f908aa_congress.jpeg"
     },
     {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\caa07661-2b6a-4fd0-aed9-0f790464df66_images.jpeg",
+      "PackagePath": "staticwebassets\\BikeProducts\\caa07661-2b6a-4fd0-aed9-0f790464df66_images.jpeg"
+    },
+    {
       "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\e8b57cf0-eb3e-4f4c-b16f-edae885bb0b6_Beneli.jpeg",
       "PackagePath": "staticwebassets\\BikeProducts\\e8b57cf0-eb3e-4f4c-b16f-edae885bb0b6_Beneli.jpeg"
+    },
+    {
+      "Id": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\ed8854c8-0120-4021-af98-950675bd72c2_CFMOTO-150NK_n.jpg",
+      "PackagePath": "staticwebassets\\BikeProducts\\ed8854c8-0120-4021-af98-950675bd72c2_CFMOTO-150NK_n.jpg"
     },
     {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.HomeBikeServiceAPI.Microsoft.AspNetCore.StaticWebAssets.props",

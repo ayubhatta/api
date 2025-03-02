@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "MybzqJz1tUphHG6IfhAWZv8khQGb1UTHgeyj/3WzfA8=",
+  "Hash": "hn/a/UmJC2NwB5isJuA74MRwsEnRW3z0U7fC9Vvjd4g=",
   "Source": "HomeBikeServiceAPI",
   "BasePath": "_content/HomeBikeServiceAPI",
   "Mode": "Default",
@@ -321,6 +321,25 @@
       "OriginalItemSpec": "wwwroot\\BikeProducts\\ca683f6c-e2af-4633-8262-f5ad86f908aa_congress.jpeg"
     },
     {
+      "Identity": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\caa07661-2b6a-4fd0-aed9-0f790464df66_images.jpeg",
+      "SourceId": "HomeBikeServiceAPI",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\",
+      "BasePath": "_content/HomeBikeServiceAPI",
+      "RelativePath": "BikeProducts/caa07661-2b6a-4fd0-aed9-0f790464df66_images.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\BikeProducts\\caa07661-2b6a-4fd0-aed9-0f790464df66_images.jpeg"
+    },
+    {
       "Identity": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\e8b57cf0-eb3e-4f4c-b16f-edae885bb0b6_Beneli.jpeg",
       "SourceId": "HomeBikeServiceAPI",
       "SourceType": "Discovered",
@@ -338,6 +357,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\BikeProducts\\e8b57cf0-eb3e-4f4c-b16f-edae885bb0b6_Beneli.jpeg"
+    },
+    {
+      "Identity": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\BikeProducts\\ed8854c8-0120-4021-af98-950675bd72c2_CFMOTO-150NK_n.jpg",
+      "SourceId": "HomeBikeServiceAPI",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\wwwroot\\",
+      "BasePath": "_content/HomeBikeServiceAPI",
+      "RelativePath": "BikeProducts/ed8854c8-0120-4021-af98-950675bd72c2_CFMOTO-150NK_n.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\BikeProducts\\ed8854c8-0120-4021-af98-950675bd72c2_CFMOTO-150NK_n.jpg"
     }
   ]
 }

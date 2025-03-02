@@ -336,3 +336,4 @@ C:\Users\bhatt\Desktop\HomeBikeServiceAPI\HomeBikeServiceAPI\obj\Debug\net8.0\re
 C:\Users\bhatt\Desktop\HomeBikeServiceAPI\HomeBikeServiceAPI\obj\Debug\net8.0\HomeBikeServiceAPI.pdb
 C:\Users\bhatt\Desktop\HomeBikeServiceAPI\HomeBikeServiceAPI\obj\Debug\net8.0\HomeBikeServiceAPI.genruntimeconfig.cache
 C:\Users\bhatt\Desktop\HomeBikeServiceAPI\HomeBikeServiceAPI\obj\Debug\net8.0\ref\HomeBikeServiceAPI.dll
+C:\Users\bhatt\source\repos\HomeBikeServiceAPI\HomeBikeServiceAPI\obj\Debug\net8.0\HomeBikeServiceAPI.sourcelink.json
