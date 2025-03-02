@@ -140,6 +140,9 @@ if (app.Environment.IsDevelopment())
 }
 
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 // Enable Hangfire Dashboard for background job monitoring
 app.UseHangfireDashboard("/hangfire");
