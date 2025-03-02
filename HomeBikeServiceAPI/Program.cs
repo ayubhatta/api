@@ -124,7 +124,7 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 
 // Set up Kestrel to listen on specific IP addresses
 builder.WebHost.UseKestrel()
-    .UseUrls("http://0.0.0.0:5046", "https://0.0.0.0:7080");
+    .UseUrls("http://0.0.0.0:5046");
 
 builder.Services.AddHttpClient();
 
