@@ -41,9 +41,28 @@ namespace HomeBikeServiceAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllMechanics()
         {
-            var mechanics = await _mechanicRepository.GetAllMechanicsAsync();
-            return Ok(mechanics);
+            try
+            {
+                var mechanics = await _mechanicRepository.GetAllMechanicsAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Mechanics retrieved successfully.",
+                    data = mechanics
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"An error occurred while fetching mechanics: {ex.Message}",
+                    data = (object)null
+                });
+            }
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMechanicById(int id)
