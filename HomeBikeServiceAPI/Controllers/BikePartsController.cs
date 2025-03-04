@@ -34,8 +34,9 @@ namespace HomeBikeServiceAPI.Controllers
 
         private string GetImageUrl(string fileName)
         {
-            return string.IsNullOrEmpty(fileName) ? null : $"{Request.Scheme}://{Request.Host}/{ImageFolder}/{fileName}";
+            return string.IsNullOrEmpty(fileName) ? null : $"{Request.Scheme}://{Request.Host}/Images/BikeParts/{fileName}";
         }
+
 
 
         // Create a Bike Part with Image Upload
@@ -50,46 +51,59 @@ namespace HomeBikeServiceAPI.Controllers
 
             try
             {
+                /*// Ensure images directory exists
                 var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                 var imagesDirectory = Path.Combine(rootPath, ImageFolder);
                 Directory.CreateDirectory(imagesDirectory);
 
+                // Generate unique file name
+                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(bikePart.PartImage.FileName)}";
+                var filePath = Path.Combine(imagesDirectory, fileName);*/
+
+                var imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Images", "BikeParts");
+                Directory.CreateDirectory(imagesDirectory);
+
                 var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(bikePart.PartImage.FileName)}";
                 var filePath = Path.Combine(imagesDirectory, fileName);
+
+                // Save image to server
                 await using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await bikePart.PartImage.CopyToAsync(stream);
                 }
 
+                // Create new BikeParts object with CompatibleBikes support
                 var newBikePart = new BikeParts
                 {
                     PartName = bikePart.PartName,
                     Price = bikePart.Price,
                     Description = bikePart.Description,
                     Quantity = bikePart.Quantity,
-                    PartImage = fileName
+                    PartImage = fileName,
+                    CompatibleBikes = bikePart.CompatibleBikes ?? new List<string>()
                 };
 
                 var result = await _bikePartsService.CreateBikePart(newBikePart);
-                if (result)
+                if (!result)
                 {
-                    return CreatedAtAction(nameof(GetById), new { id = newBikePart.Id }, new
-                    {
-                        success = true,
-                        message = "Bike part created successfully.",
-                        bikePart = new
-                        {
-                            newBikePart.Id,
-                            newBikePart.PartName,
-                            newBikePart.Price,
-                            newBikePart.Description,
-                            newBikePart.Quantity,
-                            PartImageUrl = GetImageUrl(newBikePart.PartImage)
-                        }
-                    });
+                    return BadRequest(new { success = false, message = "Failed to create bike part." });
                 }
 
-                return BadRequest(new { success = false, message = "Failed to create bike part." });
+                return CreatedAtAction(nameof(GetById), new { id = newBikePart.Id }, new
+                {
+                    success = true,
+                    message = "Bike part created successfully.",
+                    bikePart = new
+                    {
+                        newBikePart.Id,
+                        newBikePart.PartName,
+                        newBikePart.Price,
+                        newBikePart.Description,
+                        newBikePart.Quantity,
+                        PartImageUrl = GetImageUrl(newBikePart.PartImage),
+                        newBikePart.CompatibleBikes
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -100,8 +114,6 @@ namespace HomeBikeServiceAPI.Controllers
 
 
 
-
-        // Get All Bike Parts
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -113,17 +125,26 @@ namespace HomeBikeServiceAPI.Controllers
                     return NotFound(new { success = false, message = "No bike parts found." });
                 }
 
-                var bikePartsList = bikeParts.Select(bp => new
-                {
-                    bp.Id,
-                    bp.PartName,
-                    bp.Price,
-                    bp.Description,
-                    bp.Quantity,
-                    PartImageUrl = GetImageUrl(bp.PartImage)
-                }).ToList();
+                var groupedBikeParts = bikeParts
+                    .SelectMany(bp => bp.CompatibleBikes.Select(bike => new { bike, Part = bp }))
+                    .GroupBy(x => x.bike)
+                    .Select(group => new
+                    {
+                        BikeName = group.Key,
+                        Parts = group.Select(x => new
+                        {
+                            x.Part.Id,
+                            x.Part.PartName,
+                            x.Part.Price,
+                            x.Part.Description,
+                            x.Part.Quantity,
+                            x.Part.CompatibleBikes,
+                            PartImageUrl = GetImageUrl(x.Part.PartImage)
+                        }).ToList()
+                    })
+                    .ToList();
 
-                return Ok(new { success = true, message = "Bike parts retrieved successfully.", bikeParts = bikePartsList });
+                return Ok(new { success = true, message = "Bike parts grouped by bike name.", data = groupedBikeParts });
             }
             catch (Exception ex)
             {
@@ -131,6 +152,7 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
             }
         }
+
 
 
         // Get Bike Part by ID
@@ -172,23 +194,34 @@ namespace HomeBikeServiceAPI.Controllers
                     return NotFound(new { success = false, message = $"Bike part with ID {id} not found." });
                 }
 
+                // Update fields
                 existingPart.PartName = updateRequest.PartName;
                 existingPart.Price = updateRequest.Price;
                 existingPart.Description = updateRequest.Description;
                 existingPart.Quantity = updateRequest.Quantity;
+                existingPart.CompatibleBikes = updateRequest.CompatibleBikes ?? new List<string>();
 
+
+                // Handle image update
                 if (updateRequest.PartImage != null)
                 {
-                    var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                    /*var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                     var imagesDirectory = Path.Combine(rootPath, ImageFolder);
                     Directory.CreateDirectory(imagesDirectory);
 
+                    // Delete old image if it exists
+                    var oldFilePath = Path.Combine(imagesDirectory, existingPart.PartImage);*/
+
+                    var imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Images", "BikeParts");
+                    Directory.CreateDirectory(imagesDirectory);
+
                     var oldFilePath = Path.Combine(imagesDirectory, existingPart.PartImage);
-                    if (System.IO.File.Exists(oldFilePath))
+                    if (!string.IsNullOrEmpty(existingPart.PartImage) && System.IO.File.Exists(oldFilePath))
                     {
                         System.IO.File.Delete(oldFilePath);
                     }
 
+                    // Save new image
                     var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(updateRequest.PartImage.FileName)}";
                     var filePath = Path.Combine(imagesDirectory, fileName);
                     await using (var stream = new FileStream(filePath, FileMode.Create))
@@ -200,25 +233,26 @@ namespace HomeBikeServiceAPI.Controllers
                 }
 
                 var result = await _bikePartsService.UpdateBikePart(existingPart);
-                if (result)
+                if (!result)
                 {
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Bike part updated successfully.",
-                        bikePart = new
-                        {
-                            existingPart.Id,
-                            existingPart.PartName,
-                            existingPart.Price,
-                            existingPart.Description,
-                            existingPart.Quantity,
-                            PartImageUrl = GetImageUrl(existingPart.PartImage)
-                        }
-                    });
+                    return BadRequest(new { success = false, message = "Failed to update bike part." });
                 }
 
-                return BadRequest(new { success = false, message = "Failed to update bike part." });
+                return Ok(new
+                {
+                    success = true,
+                    message = "Bike part updated successfully.",
+                    bikePart = new
+                    {
+                        existingPart.Id,
+                        existingPart.PartName,
+                        existingPart.Price,
+                        existingPart.Description,
+                        existingPart.Quantity,
+                        PartImageUrl = GetImageUrl(existingPart.PartImage),
+                        existingPart.CompatibleBikes
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -226,6 +260,7 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
             }
         }
+
 
 
         // Delete a Bike Part

@@ -65,8 +65,8 @@ namespace HomeBikeServiceAPI.Controllers
                 }
 
                 // Determine file storage path
-                //var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                //var imagesDirectory = Path.Combine(rootPath, "BikeProducts");
+                /*var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var imagesDirectory = Path.Combine(rootPath, "BikeProducts");*/
                 var imagesDirectory = Path.Combine("Images", "BikeProducts");
                 Directory.CreateDirectory(imagesDirectory);
 
