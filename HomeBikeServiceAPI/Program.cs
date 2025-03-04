@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using HomeBikeServiceAPI.Helpers;
 using Hangfire.SqlServer;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,9 +52,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
+// Register custom services
 HomeServicesStartup.ConfigureServices(builder.Services);
-
 
 // Add Hangfire services
 builder.Services.AddHangfire(config =>
@@ -101,8 +101,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
-
 // Enable Authorization
 builder.Services.AddAuthorization();
 
@@ -118,19 +116,17 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));            // EMAIL SETTINGS CONFIGURATION
-
+// Email settings configuration
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 // Set up Kestrel to listen on specific IP addresses
 builder.WebHost.UseKestrel()
     .UseUrls("http://0.0.0.0:5046");
 
+// Add HTTP client support
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
-
-
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
@@ -139,10 +135,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseSwagger();
 app.UseSwaggerUI();
-
 
 // Enable Hangfire Dashboard for background job monitoring
 app.UseHangfireDashboard("/hangfire");
@@ -152,7 +146,14 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseStaticFiles();
+
+// Enable Static Files with explicit directory access
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "Images")),
+    RequestPath = "/Images"
+});
 
 // Map controllers to handle API requests
 app.MapControllers();

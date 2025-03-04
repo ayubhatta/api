@@ -29,13 +29,23 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
         // Helper method to generate the full URL for bike images
-        private string GetImageUrl(string imageFileName)
+        /*private string GetImageUrl(string imageFileName)
         {
             var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
             var imagePath = Path.Combine("BikeProducts", imageFileName); // Assuming images are stored in wwwroot/BikeProducts
             var imageUrl = $"{Request.Scheme}://{Request.Host}/{imagePath}";
             return imageUrl;
+        }*/
+
+
+        private string GetImageUrl(string imageFileName)
+        {
+            var imagePath = $"Images/BikeProducts/{imageFileName}"; // Ensure correct format with forward slashes
+            var imageUrl = $"{Request.Scheme}://{Request.Host}/{imagePath}";
+            return imageUrl;
         }
+
+
 
         // POST: api/BikeProducts/create
         [HttpPost("create")]
@@ -55,8 +65,9 @@ namespace HomeBikeServiceAPI.Controllers
                 }
 
                 // Determine file storage path
-                var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                var imagesDirectory = Path.Combine(rootPath, "BikeProducts");
+                //var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                //var imagesDirectory = Path.Combine(rootPath, "BikeProducts");
+                var imagesDirectory = Path.Combine("Images", "BikeProducts");
                 Directory.CreateDirectory(imagesDirectory);
 
                 var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(request.BikeImage.FileName)}";
@@ -216,7 +227,8 @@ namespace HomeBikeServiceAPI.Controllers
                 if (request.BikeImage != null)
                 {
                     // Delete the old image
-                    var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, "BikeProducts", existingBike.BikeImage);
+                    //var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, "BikeProducts", existingBike.BikeImage);
+                    var oldImagePath = Path.Combine("Images", "BikeProducts", existingBike.BikeImage);
                     if (System.IO.File.Exists(oldImagePath))
                     {
                         System.IO.File.Delete(oldImagePath);
@@ -224,7 +236,8 @@ namespace HomeBikeServiceAPI.Controllers
 
                     // Save the new image
                     var fileName = $"{Guid.NewGuid()}_{request.BikeImage.FileName}";
-                    var filePath = Path.Combine(_hostEnvironment.WebRootPath, "BikeProducts", fileName);
+                    //var filePath = Path.Combine(_hostEnvironment.WebRootPath, "BikeProducts", fileName);
+                    var filePath = Path.Combine("Images", "BikeProducts", fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
@@ -276,7 +289,8 @@ namespace HomeBikeServiceAPI.Controllers
                 }
 
                 // Delete the associated image
-                var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "BikeProducts", bike.BikeImage);
+                //var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "BikeProducts", bike.BikeImage);
+                var imagePath = Path.Combine("Images", "BikeProducts", bike.BikeImage); // Updated path
                 if (System.IO.File.Exists(imagePath))
                 {
                     System.IO.File.Delete(imagePath);
