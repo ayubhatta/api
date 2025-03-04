@@ -150,8 +150,7 @@ app.UseAuthorization();
 // Enable Static Files with explicit directory access
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "Images")),
+    FileProvider = new PhysicalFileProvider("/opt/render/project/.storage"),
     RequestPath = "/Images"
 });
 
