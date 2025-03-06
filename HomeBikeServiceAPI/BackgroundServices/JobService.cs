@@ -28,6 +28,54 @@ namespace HomeBikeServiceAPI.BackgroundServices
             _httpClient = httpClient;
         }
 
+
+
+        // Job for Mechanic Assigned status
+        public async Task MechanicAssignedJob(int bookingId)
+        {
+            try
+            {
+                // Retrieve the booking details
+                var booking = await _context.Bookings.FindAsync(bookingId);
+                if (booking == null) return;
+
+                // Retrieve the mechanic assigned to the booking
+                var mechanic = await _context.Mechanics.FirstOrDefaultAsync(m => m.IsAssignedTo == bookingId);
+                if (mechanic == null) return; // No mechanic assigned
+
+                // Retrieve the user associated with the booking
+                var user = await _context.Users.FindAsync(booking.UserId);
+                if (user == null || string.IsNullOrEmpty(user.Email)) return;
+
+                // Construct the email body content
+                var emailBody = "<p>Dear User,</p>";
+                emailBody += "<p>Your bike servicing has been assigned to a mechanic.</p>";
+                emailBody += $"<p><strong>Mechanic Name: {mechanic.Name}</strong></p>";
+                emailBody += $"<p><strong>Mechanic Phone: {mechanic.PhoneNumber}</strong></p>";
+                emailBody += "<p>We will notify you once the service begins and is completed.</p>";
+                emailBody += "<p>Regards,<br/>Ride Revive</p>";
+
+                // Prepare the mail request
+                var mailRequest = new MailRequestHelper
+                {
+                    To = user.Email,
+                    Subject = "Bike Servicing Assigned to Mechanic",
+                    Body = emailBody
+                };
+
+                // Send the email
+                await _emailService.SendEmailAsync(mailRequest);
+                _logger.LogInformation($"Mechanic assignment email sent to {user.Email}.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error sending Mechanic Assigned email for BookingId {bookingId}: {ex.Message}");
+            }
+        }
+
+
+
+
         // Job for In Progress status
         public async Task InProgressJob(int bookingId)
         {
@@ -108,7 +156,7 @@ namespace HomeBikeServiceAPI.BackgroundServices
         {
             try
             {
-                var response = await _httpClient.GetAsync($"https://localhost:7080/api/TotalSum/{userId}");
+                var response = await _httpClient.GetAsync($"http://localhost:5046/api/TotalSum/{userId}");
 
                 // Log the raw HTML response content
                 var responseContent = await response.Content.ReadAsStringAsync();

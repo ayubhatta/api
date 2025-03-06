@@ -123,13 +123,20 @@ namespace HomeBikeServiceAPI.Controllers
 
                 // Step 5: Update the mechanic with the valid BookingId
                 existingMechanic.IsAssignedTo = mechanicDto.IsAssignedTo.Value;
+
             }
 
             // Step 6: Save changes to the database
             _context.Mechanics.Update(existingMechanic);
             await _context.SaveChangesAsync();
 
-            // Step 7: Prepare the response with mechanic and booking details
+            // Step 7: Define the delay
+            TimeSpan delay = TimeSpan.FromSeconds(1); // You can change the delay time as needed
+
+            // Step 8: Trigger the background job with the delay
+            _jobTriggerService.TriggerMechanicAssignedJob(booking.Id, delay);
+
+            // Step 9: Prepare the response with mechanic and booking details
             var response = new
             {
                 existingMechanic.IsAssignedTo,

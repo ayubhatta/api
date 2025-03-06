@@ -31,7 +31,7 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-        [Authorize(Roles = "User")]
+        //[Authorize(Roles = "User")]
         [HttpPost("add")]
         public async Task<IActionResult> AddToBooking(BookingDto bookingDto)
         {
@@ -257,7 +257,8 @@ namespace HomeBikeServiceAPI.Controllers
                             b.Bike.BikeName,
                             b.Bike.BikeModel,
                             b.Bike.BikePrice,
-                            ImageUrl = b.Bike.BikeImage != null ? $"{Request.Scheme}://{Request.Host}/BikeProducts/{b.Bike.BikeImage}" : null // Construct image URL
+                            ImageUrl = b.Bike.BikeImage 
+                            //ImageUrl = b.Bike.BikeImage != null ? $"{Request.Scheme}://{Request.Host}/BikeProducts/{b.Bike.BikeImage}" : null // Construct image URL
                         },
                         b.BikeChasisNumber,
                         b.BikeDescription,
@@ -309,7 +310,8 @@ namespace HomeBikeServiceAPI.Controllers
                             b.Bike.BikeName,
                             b.Bike.BikeModel,
                             b.Bike.BikePrice,
-                            ImageUrl = b.Bike.BikeImage != null ? $"{Request.Scheme}://{Request.Host}/BikeProducts/{b.Bike.BikeImage}" : null // Construct image URL
+                            ImageUrl = b.Bike.BikeImage
+                            //ImageUrl = b.Bike.BikeImage != null ? $"{Request.Scheme}://{Request.Host}/BikeProducts/{b.Bike.BikeImage}" : null // Construct image URL
                         },
                         b.BikeChasisNumber,
                         b.BikeDescription,

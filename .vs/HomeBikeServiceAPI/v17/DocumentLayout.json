@@ -3,12 +3,44 @@
   "WorkspaceRootPath": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\controllers\\bikeproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\controllers\\bikeproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\backgroundservices\\jobservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\backgroundservices\\jobservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\controllers\\bookingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\controllers\\bookingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\controllers\\mechanicscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\controllers\\mechanicscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\controllers\\bikepartscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\controllers\\bikepartscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\backgroundservices\\jobtriggerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\backgroundservices\\jobtriggerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\models\\mechanic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\models\\mechanic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\models\\booking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\models\\booking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\controllers\\bikeproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|solutionrelative:homebikeserviceapi\\controllers\\bikeproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9A722210-1117-4AD6-82E5-5F07097CE90D}|HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj|c:\\users\\bhatt\\source\\repos\\homebikeserviceapi\\homebikeserviceapi\\controllers\\bikeproductcontroller---main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -22,7 +54,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,7 +78,106 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BookingController.cs",
+              "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Controllers\\BookingController.cs",
+              "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Controllers\\BookingController.cs",
+              "ToolTip": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Controllers\\BookingController.cs",
+              "RelativeToolTip": "HomeBikeServiceAPI\\Controllers\\BookingController.cs",
+              "ViewState": "AQIAAOUBAAAAAAAAAAAYwDgBAAA3AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T18:21:26.373Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MechanicsController.cs",
+              "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Controllers\\MechanicsController.cs",
+              "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Controllers\\MechanicsController.cs",
+              "ToolTip": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Controllers\\MechanicsController.cs",
+              "RelativeToolTip": "HomeBikeServiceAPI\\Controllers\\MechanicsController.cs",
+              "ViewState": "AQIAAGsAAAAAAAAAAAAwwIoAAAAVAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T18:07:52.693Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Controllers\\UserController.cs",
+              "ToolTip": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Controllers\\UserController.cs",
+              "RelativeToolTip": "HomeBikeServiceAPI\\Controllers\\UserController.cs",
+              "ViewState": "AQIAAFEBAAAAAAAAAAAcwBQAAAATAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T18:07:37.155Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Models\\User.cs",
+              "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Models\\User.cs",
+              "RelativeToolTip": "HomeBikeServiceAPI\\Models\\User.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABUAAAAsAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T18:07:32.008Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Mechanic.cs",
+              "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Models\\Mechanic.cs",
+              "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Models\\Mechanic.cs",
+              "ToolTip": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Models\\Mechanic.cs",
+              "RelativeToolTip": "HomeBikeServiceAPI\\Models\\Mechanic.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABgAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T18:06:51.71Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Booking.cs",
+              "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Models\\Booking.cs",
+              "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Models\\Booking.cs",
+              "ToolTip": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Models\\Booking.cs",
+              "RelativeToolTip": "HomeBikeServiceAPI\\Models\\Booking.cs",
+              "ViewState": "AQIAAAoAAAAAAAAAAAA2wBkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T18:06:22.485Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "JobService.cs",
+              "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\BackgroundServices\\JobService.cs",
+              "RelativeDocumentMoniker": "HomeBikeServiceAPI\\BackgroundServices\\JobService.cs",
+              "ToolTip": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\BackgroundServices\\JobService.cs",
+              "RelativeToolTip": "HomeBikeServiceAPI\\BackgroundServices\\JobService.cs",
+              "ViewState": "AQIAAIsAAAAAAAAAAAAkwJ4AAABRAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T18:01:06.738Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "JobTriggerService.cs",
+              "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\BackgroundServices\\JobTriggerService.cs",
+              "RelativeDocumentMoniker": "HomeBikeServiceAPI\\BackgroundServices\\JobTriggerService.cs",
+              "ToolTip": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\BackgroundServices\\JobTriggerService.cs",
+              "RelativeToolTip": "HomeBikeServiceAPI\\BackgroundServices\\JobTriggerService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T18:00:56.232Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "bikeProductController.cs",
               "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Controllers\\bikeProductController.cs",
               "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Controllers\\bikeProductController.cs",
@@ -54,12 +185,11 @@
               "RelativeToolTip": "HomeBikeServiceAPI\\Controllers\\bikeProductController.cs",
               "ViewState": "AQIAAB0BAAAAAAAAAAAuwDUBAABmAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-06T16:23:30.558Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-06T16:23:30.558Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 10,
               "Title": "bikeProductController---MAin.cs",
               "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Controllers\\bikeProductController---MAin.cs",
               "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Controllers\\bikeProductController---MAin.cs",
@@ -67,12 +197,11 @@
               "RelativeToolTip": "HomeBikeServiceAPI\\Controllers\\bikeProductController---MAin.cs",
               "ViewState": "AQIAAAsBAAAAAAAAAAAAwB4BAAARAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-06T16:23:22.842Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-06T16:23:22.842Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "BikePartsController.cs",
               "DocumentMoniker": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Controllers\\BikePartsController.cs",
               "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Controllers\\BikePartsController.cs",
@@ -80,8 +209,7 @@
               "RelativeToolTip": "HomeBikeServiceAPI\\Controllers\\BikePartsController.cs",
               "ViewState": "AQIAAFsBAAAAAAAAAAAwwG0BAAA8AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-06T15:24:54.053Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-06T15:24:54.053Z"
             }
           ]
         }

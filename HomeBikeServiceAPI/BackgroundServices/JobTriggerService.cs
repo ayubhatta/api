@@ -13,6 +13,11 @@ namespace HomeBikeServiceAPI.Services
             _jobService = jobService;
         }
 
+        public void TriggerMechanicAssignedJob(int bookingId, TimeSpan delay)
+        {
+            BackgroundJob.Schedule(() => _jobService.MechanicAssignedJob(bookingId), delay);
+        }
+
         // Trigger a delayed job for In Progress status
         public void TriggerInProgressJob(int bookingId, TimeSpan delay)
         {
