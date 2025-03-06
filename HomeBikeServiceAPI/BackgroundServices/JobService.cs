@@ -156,7 +156,7 @@ namespace HomeBikeServiceAPI.BackgroundServices
         {
             try
             {
-                var response = await _httpClient.GetAsync($"http://localhost:5046/api/TotalSum/{userId}");
+                var response = await _httpClient.GetAsync($"https://api-rj9q.onrender.com/api/TotalSum/{userId}");
 
                 // Log the raw HTML response content
                 var responseContent = await response.Content.ReadAsStringAsync();
