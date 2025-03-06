@@ -87,17 +87,22 @@ namespace HomeBikeServiceAPI.Controllers
                 var bookingStartTimeSpan = bookingStartTime.TimeOfDay;
                 var bookingEndTimeSpan = bookingEndTime.TimeOfDay;
 
-                var bookingTimeCheck = _context.Bookings
+                // Get the total number of available mechanics
+                var totalMechanics = await _context.Mechanics.CountAsync();
+
+                // Check how many bookings already exist for the same time and date
+                var existingBookingsCount = _context.Bookings
                     .AsEnumerable()
                     .Where(b => b.BookingDate == bookingDate &&
                                 b.BookingTime.HasValue &&
                                 b.BookingTime.Value.ToTimeSpan() >= bookingStartTimeSpan &&
                                 b.BookingTime.Value.ToTimeSpan() <= bookingEndTimeSpan)
-                    .ToList();
+                    .Count();
 
-                if (bookingTimeCheck.Any())
+                // Ensure the count of bookings does not exceed the total number of mechanics
+                if (existingBookingsCount >= totalMechanics)
                 {
-                    return Ok(new { success = false, message = "Bike already booked for this time." });
+                    return Ok(new { success = false, message = "All available mechanics are booked for this time." });
                 }
 
                 var bookingItem = new Booking
