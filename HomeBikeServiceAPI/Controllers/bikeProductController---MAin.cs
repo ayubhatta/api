@@ -1,13 +1,8 @@
-﻿using HomeBikeServiceAPI.Models;
+﻿/*using HomeBikeServiceAPI.Models;
 using HomeBikeServiceAPI.Data;
 using HomeBikeServiceAPI.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Processing;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System;
 using System.IO;
 using System.Linq;
@@ -25,8 +20,7 @@ namespace HomeBikeServiceAPI.Controllers
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly ILogger<BikeProductsController> _logger;
-        private const string ImageFolder = "Images/BikeProducts";
-        private const int MaxImageWidth = 1024;  // Max width for resizing images
+
         public BikeProductsController(AppDbContext context, IWebHostEnvironment hostEnvironment, ILogger<BikeProductsController> logger)
         {
             _context = context;
@@ -35,123 +29,13 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
         // Helper method to generate the full URL for bike images
-        /*private string GetImageUrl(string imageFileName)
+        *//*private string GetImageUrl(string imageFileName)
         {
             var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
             var imagePath = Path.Combine("BikeProducts", imageFileName); // Assuming images are stored in wwwroot/BikeProducts
             var imageUrl = $"{Request.Scheme}://{Request.Host}/{imagePath}";
             return imageUrl;
-        }*/
-
-
-
-        public class ImgBBResponse
-        {
-            public ImgBBData Data { get; set; }
-            public bool Success { get; set; }
-            public int Status { get; set; }
-        }
-
-        public class ImgBBData
-        {
-            public string Id { get; set; }
-            public string Title { get; set; }
-            public string UrlViewer { get; set; }
-            [JsonPropertyName("url")]
-            public string Url { get; set; }
-            public string DisplayUrl { get; set; }
-            public string Width { get; set; }
-            public string Height { get; set; }
-            public string Size { get; set; }
-            public string Time { get; set; }
-            public string Expiration { get; set; }
-            public ImgBBImage Image { get; set; }
-            public ImgBBImage Thumb { get; set; }
-            public ImgBBImage Medium { get; set; }
-            public string DeleteUrl { get; set; }
-        }
-
-        public class ImgBBImage
-        {
-            public string Filename { get; set; }
-            public string Name { get; set; }
-            public string Mime { get; set; }
-            public string Extension { get; set; }
-            public string Url { get; set; }
-        }
-
-
-        // Method to resize images if they exceed a certain size
-        private async Task<byte[]> ResizeImage(IFormFile image, int maxWidth = MaxImageWidth)
-        {
-            using var imageStream = image.OpenReadStream();
-            using var imageToResize = Image.Load(imageStream);
-
-            // Resize the image to the max width while maintaining the aspect ratio
-            if (imageToResize.Width > maxWidth)
-            {
-                imageToResize.Mutate(x => x.Resize(maxWidth, 0)); // Resize keeping aspect ratio
-            }
-
-            using var outputStream = new MemoryStream();
-            imageToResize.Save(outputStream, new JpegEncoder()); // Save as JPEG
-            return outputStream.ToArray();
-        }
-
-        // Upload image to ImgBB and get URL
-        private async Task<string> UploadToImgBB(IFormFile file)
-        {
-            string apiKey = "d0c73e0ae1562c672259e39238e3d36f";  // Replace with your actual API key
-            string url = $"https://api.imgbb.com/1/upload?key={apiKey}";
-
-            using var client = new HttpClient();
-            using var content = new MultipartFormDataContent();
-
-            // Create a StreamContent for the file
-            var imageContent = new StreamContent(file.OpenReadStream());
-            content.Add(imageContent, "image", file.FileName);
-
-            // Post the request to ImgBB API
-            var response = await client.PostAsync(url, content);
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogError($"ImgBB upload failed: {await response.Content.ReadAsStringAsync()}");
-                return null;
-            }
-
-            // Deserialize the response body
-            var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("ImgBB Response: {ResponseBody}", responseBody);
-
-            try
-            {
-                // Manually parse the response body using JsonDocument
-                var jsonResponse = JsonDocument.Parse(responseBody);
-
-                // Extract the URL from the response
-                var imgUrl = jsonResponse.RootElement
-                    .GetProperty("data")
-                    .GetProperty("url")
-                    .GetString();
-
-                // Check if the URL exists and return it
-                if (!string.IsNullOrEmpty(imgUrl))
-                {
-                    _logger.LogInformation("ImgBB Image URL: {ImgUrl}", imgUrl);
-                    return imgUrl;
-                }
-                else
-                {
-                    _logger.LogError("ImgBB response does not contain a valid URL.");
-                    return null;
-                }
-            }
-            catch (JsonException ex)
-            {
-                _logger.LogError($"Failed to parse ImgBB response: {ex.Message}");
-                return null;
-            }
-        }
+        }*//*
 
 
         private string GetImageUrl(string imageFileName)
@@ -180,29 +64,29 @@ namespace HomeBikeServiceAPI.Controllers
                     return BadRequest(new { message = "Please fill in all required fields." });
                 }
 
-                // Resize image before Base64 conversion
-                var resizedImageBytes = await ResizeImage(request.BikeImage);
+                // Determine file storage path
+                *//*var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var imagesDirectory = Path.Combine(rootPath, "BikeProducts");*//*
+                var imagesDirectory = Path.Combine("Images", "BikeProducts");
+                Directory.CreateDirectory(imagesDirectory);
 
-                // Convert the resized image to Base64
-                string base64Image = Convert.ToBase64String(resizedImageBytes);
-                _logger.LogInformation("Base64 Image Length: {Length} bytes", base64Image.Length);
+                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(request.BikeImage.FileName)}";
+                var filePath = Path.Combine(imagesDirectory, fileName);
 
-                // Upload to ImgBB
-                var imgbbUrl = await UploadToImgBB(request.BikeImage);
-                if (string.IsNullOrEmpty(imgbbUrl))
+                // Save the image file
+                await using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    _logger.LogError("Failed to upload image to ImgBB. Image size: {Size} bytes", request.BikeImage.Length);
-                    return StatusCode(500, new { success = false, message = "Failed to upload image to ImgBB." });
+                    await request.BikeImage.CopyToAsync(stream);
                 }
 
-                    // Save the BikeProduct to the database
-                    var bikeProduct = new BikeProduct
+                // Save the BikeProduct to the database
+                var bikeProduct = new BikeProduct
                 {
                     BikeName = request.BikeName.Trim(),
                     BikeModel = request.BikeModel.Trim(),
                     BikePrice = request.BikePrice,
-                    BikeImage = imgbbUrl
-                    };
+                    BikeImage = fileName
+                };
 
                 await _context.BikeProducts.AddAsync(bikeProduct);
                 await _context.SaveChangesAsync();
@@ -217,7 +101,7 @@ namespace HomeBikeServiceAPI.Controllers
                         bikeProduct.BikeName,
                         bikeProduct.BikeModel,
                         bikeProduct.BikePrice,
-                        BikeImageUrl = bikeProduct.BikeImage
+                        BikeImageUrl = GetImageUrl(bikeProduct.BikeImage)
                     }
                 });
             }
@@ -251,7 +135,7 @@ namespace HomeBikeServiceAPI.Controllers
                     bike.BikeName,
                     bike.BikeModel,
                     bike.BikePrice,
-                    BikeImageUrl = bike.BikeImage
+                    BikeImageUrl = GetImageUrl(bike.BikeImage)
                 });
 
                 return Ok(new { success = true, message = "All Bikes Fetched", bikes = bikeResponses });
@@ -284,7 +168,7 @@ namespace HomeBikeServiceAPI.Controllers
                         bike.BikeName,
                         bike.BikeModel,
                         bike.BikePrice,
-                        BikeImageUrl = bike.BikeImage
+                        BikeImageUrl = GetImageUrl(bike.BikeImage)
                     }
                 });
             }
@@ -316,7 +200,7 @@ namespace HomeBikeServiceAPI.Controllers
                     bike.BikeName,
                     bike.BikeModel,
                     bike.BikePrice,
-                    BikeImageUrl = bike.BikeImage
+                    BikeImageUrl = GetImageUrl(bike.BikeImage)
                 });
 
                 return Ok(new { success = true, message = "Bikes fetched by bike name", bikes = bikeResponses });
@@ -342,16 +226,25 @@ namespace HomeBikeServiceAPI.Controllers
                 // Update image if provided
                 if (request.BikeImage != null)
                 {
-                    var resizedImageBytes = await ResizeImage(request.BikeImage);
-                    var base64Image = Convert.ToBase64String(resizedImageBytes);
-
-                    var imgbbUrl = await UploadToImgBB(request.BikeImage);
-                    if (imgbbUrl == null)
+                    // Delete the old image
+                    //var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, "BikeProducts", existingBike.BikeImage);
+                    var oldImagePath = Path.Combine("Images", "BikeProducts", existingBike.BikeImage);
+                    if (System.IO.File.Exists(oldImagePath))
                     {
-                        return StatusCode(500, new { success = false, message = "Failed to upload image to ImgBB." });
+                        System.IO.File.Delete(oldImagePath);
                     }
 
-                    existingBike.BikeImage = imgbbUrl;
+                    // Save the new image
+                    var fileName = $"{Guid.NewGuid()}_{request.BikeImage.FileName}";
+                    //var filePath = Path.Combine(_hostEnvironment.WebRootPath, "BikeProducts", fileName);
+                    var filePath = Path.Combine("Images", "BikeProducts", fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await request.BikeImage.CopyToAsync(stream);
+                    }
+
+                    existingBike.BikeImage = fileName;
                 }
 
                 // Update other fields
@@ -373,7 +266,7 @@ namespace HomeBikeServiceAPI.Controllers
                         existingBike.BikeName,
                         existingBike.BikeModel,
                         existingBike.BikePrice,
-                        BikeImageUrl = existingBike.BikeImage
+                        BikeImageUrl = GetImageUrl(existingBike.BikeImage)
                     }
                 });
             }
@@ -415,3 +308,4 @@ namespace HomeBikeServiceAPI.Controllers
         }
     }
 }
+*/

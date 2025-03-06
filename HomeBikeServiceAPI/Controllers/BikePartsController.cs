@@ -6,10 +6,17 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace HomeBikeServiceAPI.Controllers
@@ -22,7 +29,7 @@ namespace HomeBikeServiceAPI.Controllers
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly ILogger<BikePartsController> _logger;
         private const string ImageFolder = "Images/BikeParts";
-
+        private const int MaxImageWidth = 1024;  // Max width for resizing images
 
         public BikePartsController(BikePartsService bikePartsService, IWebHostEnvironment hostEnvironment, ILogger<BikePartsController> logger)
         {
@@ -31,11 +38,128 @@ namespace HomeBikeServiceAPI.Controllers
             _logger = logger;
         }
 
+        public class ImgBBResponse
+        {
+            public ImgBBData Data { get; set; }
+            public bool Success { get; set; }
+            public int Status { get; set; }
+        }
+
+        public class ImgBBData
+        {
+            public string Id { get; set; }
+            public string Title { get; set; }
+            public string UrlViewer { get; set; }
+            [JsonPropertyName("url")]
+            public string Url { get; set; }
+            public string DisplayUrl { get; set; }
+            public string Width { get; set; }
+            public string Height { get; set; }
+            public string Size { get; set; }
+            public string Time { get; set; }
+            public string Expiration { get; set; }
+            public ImgBBImage Image { get; set; }
+            public ImgBBImage Thumb { get; set; }
+            public ImgBBImage Medium { get; set; }
+            public string DeleteUrl { get; set; }
+        }
+
+        public class ImgBBImage
+        {
+            public string Filename { get; set; }
+            public string Name { get; set; }
+            public string Mime { get; set; }
+            public string Extension { get; set; }
+            public string Url { get; set; }
+        }
+
+
+        // Method to resize images if they exceed a certain size
+        private async Task<byte[]> ResizeImage(IFormFile image, int maxWidth = MaxImageWidth)
+        {
+            using var imageStream = image.OpenReadStream();
+            using var imageToResize = Image.Load(imageStream);
+
+            // Resize the image to the max width while maintaining the aspect ratio
+            if (imageToResize.Width > maxWidth)
+            {
+                imageToResize.Mutate(x => x.Resize(maxWidth, 0)); // Resize keeping aspect ratio
+            }
+
+            using var outputStream = new MemoryStream();
+            imageToResize.Save(outputStream, new JpegEncoder()); // Save as JPEG
+            return outputStream.ToArray();
+        }
+
+        // Upload image to ImgBB and get URL
+        private async Task<string> UploadToImgBB(IFormFile file)
+        {
+            string apiKey = "d0c73e0ae1562c672259e39238e3d36f";  // Replace with your actual API key
+            string url = $"https://api.imgbb.com/1/upload?key={apiKey}";
+
+            using var client = new HttpClient();
+            using var content = new MultipartFormDataContent();
+
+            // Create a StreamContent for the file
+            var imageContent = new StreamContent(file.OpenReadStream());
+            content.Add(imageContent, "image", file.FileName);
+
+            // Post the request to ImgBB API
+            var response = await client.PostAsync(url, content);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError($"ImgBB upload failed: {await response.Content.ReadAsStringAsync()}");
+                return null;
+            }
+
+            // Deserialize the response body
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation("ImgBB Response: {ResponseBody}", responseBody);
+
+            try
+            {
+                // Manually parse the response body using JsonDocument
+                var jsonResponse = JsonDocument.Parse(responseBody);
+
+                // Extract the URL from the response
+                var imgUrl = jsonResponse.RootElement
+                    .GetProperty("data")
+                    .GetProperty("url")
+                    .GetString();
+
+                // Check if the URL exists and return it
+                if (!string.IsNullOrEmpty(imgUrl))
+                {
+                    _logger.LogInformation("ImgBB Image URL: {ImgUrl}", imgUrl);
+                    return imgUrl;
+                }
+                else
+                {
+                    _logger.LogError("ImgBB response does not contain a valid URL.");
+                    return null;
+                }
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError($"Failed to parse ImgBB response: {ex.Message}");
+                return null;
+            }
+        }
+
+
+
+
+
+
+
+
+
 
         private string GetImageUrl(string fileName)
         {
             return string.IsNullOrEmpty(fileName) ? null : $"{Request.Scheme}://{Request.Host}/Images/BikeParts/{fileName}";
         }
+
 
 
 
@@ -51,41 +175,36 @@ namespace HomeBikeServiceAPI.Controllers
 
             try
             {
-                /*// Ensure images directory exists
-                var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                var imagesDirectory = Path.Combine(rootPath, ImageFolder);
-                Directory.CreateDirectory(imagesDirectory);
+                // Resize image before Base64 conversion
+                var resizedImageBytes = await ResizeImage(bikePart.PartImage);
 
-                // Generate unique file name
-                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(bikePart.PartImage.FileName)}";
-                var filePath = Path.Combine(imagesDirectory, fileName);*/
+                // Convert the resized image to Base64
+                string base64Image = Convert.ToBase64String(resizedImageBytes);
+                _logger.LogInformation("Base64 Image Length: {Length} bytes", base64Image.Length);
 
-                var imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Images", "BikeParts");
-                Directory.CreateDirectory(imagesDirectory);
-
-                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(bikePart.PartImage.FileName)}";
-                var filePath = Path.Combine(imagesDirectory, fileName);
-
-                // Save image to server
-                await using (var stream = new FileStream(filePath, FileMode.Create))
+                // Upload to ImgBB
+                var imgbbUrl = await UploadToImgBB(bikePart.PartImage);
+                if (string.IsNullOrEmpty(imgbbUrl))
                 {
-                    await bikePart.PartImage.CopyToAsync(stream);
+                    _logger.LogError("Failed to upload image to ImgBB. Image size: {Size} bytes", bikePart.PartImage.Length);
+                    return StatusCode(500, new { success = false, message = "Failed to upload image to ImgBB." });
                 }
 
-                // Create new BikeParts object with CompatibleBikes support
+                // Create BikePart object
                 var newBikePart = new BikeParts
                 {
                     PartName = bikePart.PartName,
                     Price = bikePart.Price,
                     Description = bikePart.Description,
                     Quantity = bikePart.Quantity,
-                    PartImage = fileName,
+                    PartImage = imgbbUrl, // Store ImgBB URL
                     CompatibleBikes = bikePart.CompatibleBikes ?? new List<string>()
                 };
 
                 var result = await _bikePartsService.CreateBikePart(newBikePart);
                 if (!result)
                 {
+                    _logger.LogError("Failed to save BikePart to the database: {@BikePart}", newBikePart);
                     return BadRequest(new { success = false, message = "Failed to create bike part." });
                 }
 
@@ -93,14 +212,14 @@ namespace HomeBikeServiceAPI.Controllers
                 {
                     success = true,
                     message = "Bike part created successfully.",
-                    bikePart = new
+                    data = new
                     {
                         newBikePart.Id,
                         newBikePart.PartName,
                         newBikePart.Price,
                         newBikePart.Description,
                         newBikePart.Quantity,
-                        PartImageUrl = GetImageUrl(newBikePart.PartImage),
+                        PartImageUrl = newBikePart.PartImage,
                         newBikePart.CompatibleBikes
                     }
                 });
@@ -120,18 +239,21 @@ namespace HomeBikeServiceAPI.Controllers
             try
             {
                 var bikeParts = await _bikePartsService.GetAllBikeParts();
+
                 if (bikeParts == null || !bikeParts.Any())
                 {
                     return NotFound(new { success = false, message = "No bike parts found." });
                 }
 
                 var groupedBikeParts = bikeParts
+                    .Where(bp => bp.CompatibleBikes != null && bp.CompatibleBikes.Any()) // Ensure no null errors
                     .SelectMany(bp => bp.CompatibleBikes.Select(bike => new { bike, Part = bp }))
                     .GroupBy(x => x.bike)
                     .Select(group => new
                     {
                         BikeName = group.Key,
-                        Parts = group.Select(x => new
+                        // Await image URL before constructing the response
+                        Parts = group.Select(async x => new
                         {
                             x.Part.Id,
                             x.Part.PartName,
@@ -139,12 +261,20 @@ namespace HomeBikeServiceAPI.Controllers
                             x.Part.Description,
                             x.Part.Quantity,
                             x.Part.CompatibleBikes,
-                            PartImageUrl = GetImageUrl(x.Part.PartImage)
+                            PartImageUrl = await GetImgBBUrlAsync(x.Part.PartImage) // Dynamically fetch ImgBB URL if required
                         }).ToList()
                     })
                     .ToList();
 
-                return Ok(new { success = true, message = "Bike parts grouped by bike name.", data = groupedBikeParts });
+                // Wait for all asynchronous operations to complete
+                var finalGroupedBikeParts = new List<object>();
+                foreach (var group in groupedBikeParts)
+                {
+                    var parts = await Task.WhenAll(group.Parts); // Ensure all async tasks are awaited
+                    finalGroupedBikeParts.Add(new { group.BikeName, Parts = parts });
+                }
+
+                return Ok(new { success = true, message = "Bike parts grouped by bike name.", data = finalGroupedBikeParts });
             }
             catch (Exception ex)
             {
@@ -159,27 +289,44 @@ namespace HomeBikeServiceAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            try
+            var bikePart = await _bikePartsService.GetBikePartById(id);
+            if (bikePart == null)
             {
-                var bikePart = await _bikePartsService.GetBikePartById(id);
-                if (bikePart == null)
-                {
-                    return NotFound(new { success = false, message = $"Bike part with ID {id} not found." });
-                }
-
-                // Append full image URL
-                /*var rootUrl = $"{Request.Scheme}://{Request.Host}/BikeParts/";
-                bikePart.PartImage = $"{rootUrl}{bikePart.PartImage}";*/
-                bikePart.PartImage = GetImageUrl(bikePart.PartImage);
-
-                return Ok(new { success = true, message = "Bike part retrieved successfully.", bikePart });
+                return NotFound(new { success = false, message = $"Bike part with ID {id} not found." });
             }
-            catch (Exception ex)
+
+            return Ok(new
             {
-                _logger.LogError(ex, "Error retrieving bike part.");
-                return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
+                success = true,
+                bikePart = new
+                {
+                    bikePart.Id,
+                    bikePart.PartName,
+                    bikePart.Price,
+                    bikePart.Description,
+                    bikePart.Quantity,
+                    PartImageUrl = await GetImgBBUrlAsync(bikePart.PartImage), // Dynamically fetch ImgBB URL
+                    bikePart.CompatibleBikes
+                }
+            });
+        }
+
+
+        private async Task<string> GetImgBBUrlAsync(string partImage)
+        {
+            // Assuming partImage contains the ImgBB URL, if not, replace with logic to fetch from ImgBB
+            if (!string.IsNullOrEmpty(partImage))
+            {
+                return partImage;
+            }
+            else
+            {
+                // Handle the case where no ImgBB URL is available, possibly return a placeholder image URL.
+                return "https://default-image-url.com";
             }
         }
+
+
 
         // Update a Bike Part with Image Upload
         //[Authorize(Roles = "Admin")]
@@ -201,35 +348,19 @@ namespace HomeBikeServiceAPI.Controllers
                 existingPart.Quantity = updateRequest.Quantity;
                 existingPart.CompatibleBikes = updateRequest.CompatibleBikes ?? new List<string>();
 
-
                 // Handle image update
                 if (updateRequest.PartImage != null)
                 {
-                    /*var rootPath = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                    var imagesDirectory = Path.Combine(rootPath, ImageFolder);
-                    Directory.CreateDirectory(imagesDirectory);
+                    var resizedImageBytes = await ResizeImage(updateRequest.PartImage);
+                    var base64Image = Convert.ToBase64String(resizedImageBytes);
 
-                    // Delete old image if it exists
-                    var oldFilePath = Path.Combine(imagesDirectory, existingPart.PartImage);*/
-
-                    var imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Images", "BikeParts");
-                    Directory.CreateDirectory(imagesDirectory);
-
-                    var oldFilePath = Path.Combine(imagesDirectory, existingPart.PartImage);
-                    if (!string.IsNullOrEmpty(existingPart.PartImage) && System.IO.File.Exists(oldFilePath))
+                    var imgbbUrl = await UploadToImgBB(updateRequest.PartImage);
+                    if (imgbbUrl == null)
                     {
-                        System.IO.File.Delete(oldFilePath);
+                        return StatusCode(500, new { success = false, message = "Failed to upload image to ImgBB." });
                     }
 
-                    // Save new image
-                    var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(updateRequest.PartImage.FileName)}";
-                    var filePath = Path.Combine(imagesDirectory, fileName);
-                    await using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await updateRequest.PartImage.CopyToAsync(stream);
-                    }
-
-                    existingPart.PartImage = fileName;
+                    existingPart.PartImage = imgbbUrl;
                 }
 
                 var result = await _bikePartsService.UpdateBikePart(existingPart);
@@ -249,7 +380,7 @@ namespace HomeBikeServiceAPI.Controllers
                         existingPart.Price,
                         existingPart.Description,
                         existingPart.Quantity,
-                        PartImageUrl = GetImageUrl(existingPart.PartImage),
+                        PartImageUrl = existingPart.PartImage,
                         existingPart.CompatibleBikes
                     }
                 });
@@ -260,8 +391,6 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
             }
         }
-
-
 
         // Delete a Bike Part
         //[Authorize(Roles = "Admin")]
@@ -274,15 +403,6 @@ namespace HomeBikeServiceAPI.Controllers
                 if (existingPart == null)
                 {
                     return NotFound(new { success = false, message = $"Bike part with ID {id} not found." });
-                }
-
-                // Delete image file from Images/BikeParts directory
-                var imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Images", "BikeParts");
-                var filePath = Path.Combine(imagesDirectory, existingPart.PartImage);
-
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
                 }
 
                 var result = await _bikePartsService.DeleteBikePart(id);
@@ -299,6 +419,5 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
             }
         }
-
     }
 }

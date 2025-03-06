@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "H5eZNO51840=",
+  "dgSpecHash": "1/J+GYn6UOs=",
   "success": true,
   "projectFilePath": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\HomeBikeServiceAPI.csproj",
   "expectedPackageFiles": [
@@ -77,6 +77,7 @@
     "C:\\Users\\bhatt\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\bhatt\\.nuget\\packages\\repobasemodelcore\\1.0.0\\repobasemodelcore.1.0.0.nupkg.sha512",
     "C:\\Users\\bhatt\\.nuget\\packages\\serilog\\4.0.1\\serilog.4.0.1.nupkg.sha512",
+    "C:\\Users\\bhatt\\.nuget\\packages\\sixlabors.imagesharp\\3.1.7\\sixlabors.imagesharp.3.1.7.nupkg.sha512",
     "C:\\Users\\bhatt\\.nuget\\packages\\swashbuckle.aspnetcore\\6.4.0\\swashbuckle.aspnetcore.6.4.0.nupkg.sha512",
     "C:\\Users\\bhatt\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.4.0\\swashbuckle.aspnetcore.swagger.6.4.0.nupkg.sha512",
     "C:\\Users\\bhatt\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.4.0\\swashbuckle.aspnetcore.swaggergen.6.4.0.nupkg.sha512",
