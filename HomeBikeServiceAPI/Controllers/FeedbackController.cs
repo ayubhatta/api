@@ -26,33 +26,43 @@ namespace HomeBikeServiceAPI.Controllers
 
         // Create Feedback
         [HttpPost("add")]
-        public async Task<IActionResult> AddFeedback(Feedback feedback)
+        public async Task<IActionResult> AddFeedback(FeedbackDTO feedbackDto)
         {
             try
             {
-                if (feedback == null)
+                if (feedbackDto == null)
                 {
                     return BadRequest(new { success = false, message = "Feedback data is required." });
                 }
 
                 // Validate feedback properties
-                if (string.IsNullOrEmpty(feedback.Subject) || string.IsNullOrEmpty(feedback.Message))
+                if (string.IsNullOrEmpty(feedbackDto.Subject) || string.IsNullOrEmpty(feedbackDto.Message))
                 {
                     return BadRequest(new { success = false, message = "Feedback subject and message are required." });
                 }
 
                 // Check if User exists
-                var userExists = await _context.Users.AnyAsync(u => u.Id == feedback.UserId);
+                var userExists = await _context.Users.AnyAsync(u => u.Id == feedbackDto.UserId);
                 if (!userExists)
                 {
-                    return BadRequest(new { success = false, message = $"User with id not found." });
+                    return BadRequest(new { success = false, message = $"User with id {feedbackDto.UserId} not found." });
                 }
+
+                // Map DTO to Feedback entity
+                var feedback = new Feedback
+                {
+                    UserId = feedbackDto.UserId,
+                    Subject = feedbackDto.Subject,
+                    Message = feedbackDto.Message,
+                    Rating = feedbackDto.Rating,
+                    CreatedAt = feedbackDto.CreatedAt
+                };
 
                 // Add feedback to the database
                 await _feedbackRepo.AddFeedbackAsync(feedback);
 
                 // Log success
-                _logger.LogInformation("Feedback submitted successfully for User ID: {UserId}", feedback.UserId);
+                _logger.LogInformation("Feedback submitted successfully for User ID: {UserId}", feedbackDto.UserId);
 
                 return Ok(new { success = true, message = "Feedback submitted successfully." });
             }
@@ -63,19 +73,19 @@ namespace HomeBikeServiceAPI.Controllers
             }
         }
 
-        // Update Feedback
+
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateFeedback(int id, Feedback feedback)
+        public async Task<IActionResult> UpdateFeedback(int id, [FromBody] FeedbackDTO feedbackDto)
         {
             try
             {
-                if (feedback == null)
+                if (feedbackDto == null)
                 {
                     return BadRequest(new { success = false, message = "Feedback data is required." });
                 }
 
                 // Validate feedback properties
-                if (string.IsNullOrEmpty(feedback.Subject) || string.IsNullOrEmpty(feedback.Message))
+                if (string.IsNullOrEmpty(feedbackDto.Subject) || string.IsNullOrEmpty(feedbackDto.Message))
                 {
                     return BadRequest(new { success = false, message = "Feedback subject and message are required." });
                 }
@@ -86,10 +96,17 @@ namespace HomeBikeServiceAPI.Controllers
                     return NotFound(new { success = false, message = "Feedback not found." });
                 }
 
+                // Ensure the user ID matches the existing record (optional security check)
+                if (existingFeedback.UserId != feedbackDto.UserId)
+                {
+                    return BadRequest(new { success = false, message = "User ID mismatch. Cannot update feedback for another user." });
+                }
+
                 // Update feedback details
-                existingFeedback.Subject = feedback.Subject;
-                existingFeedback.Message = feedback.Message;
-                existingFeedback.Rating = feedback.Rating;
+                existingFeedback.Subject = feedbackDto.Subject;
+                existingFeedback.Message = feedbackDto.Message;
+                existingFeedback.Rating = feedbackDto.Rating;
+                existingFeedback.CreatedAt = feedbackDto.CreatedAt; // Update timestamp
 
                 await _feedbackRepo.UpdateFeedbackAsync(existingFeedback);
 
@@ -103,6 +120,7 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error, please try again later." });
             }
         }
+
 
         // Get All Feedback with User Details
         [HttpGet("all")]
