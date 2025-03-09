@@ -11,5 +11,6 @@ namespace HomeBikeServiceAPI.Repositories
         Task<Mechanic> CreateMechanicAsync(Mechanic mechanic);
         Task<Mechanic> UpdateMechanicAsync(Mechanic mechanic);
         Task<bool> DeleteMechanicAsync(int id);
+        Task<Mechanic> GetMechanicByUserIdAsync(int userId);
     }
 }

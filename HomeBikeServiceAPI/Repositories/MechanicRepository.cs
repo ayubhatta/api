@@ -17,13 +17,26 @@ namespace HomeBikeServiceAPI.Repositories
 
         public async Task<IEnumerable<Mechanic>> GetAllMechanicsAsync()
         {
-            return await _context.Mechanics.Include(m => m.Booking).ToListAsync();
+            return await _context.Mechanics
+                .Include(m => m.Booking)
+                .ToListAsync();
         }
 
-        public async Task<Mechanic> GetMechanicByIdAsync(int id)
+        public async Task<Mechanic> GetMechanicByIdAsync(int userId)
         {
-            return await _context.Mechanics.Include(m => m.Booking).FirstOrDefaultAsync(m => m.Id == id);
+            return await _context.Mechanics
+                .Include(m => m.Booking)
+                .FirstOrDefaultAsync(m => m.UserId == userId);
         }
+
+
+        public async Task<Mechanic> GetMechanicByUserIdAsync(int userId)
+        {
+            return await _context.Mechanics
+                                  .Include(m => m.Booking)
+                                  .FirstOrDefaultAsync(m => m.UserId == userId);
+        }
+
 
         public async Task<Mechanic> CreateMechanicAsync(Mechanic mechanic)
         {
@@ -43,6 +56,7 @@ namespace HomeBikeServiceAPI.Repositories
             existingMechanic.IsAssignedTo = mechanic.IsAssignedTo;
 
             _context.Mechanics.Update(existingMechanic);
+            _context.Users.Update(existingMechanic.User);
             await _context.SaveChangesAsync();
             return existingMechanic;
         }
@@ -53,6 +67,7 @@ namespace HomeBikeServiceAPI.Repositories
             if (mechanic == null) return false;
 
             _context.Mechanics.Remove(mechanic);
+            _context.Users.Remove(mechanic.User);
             await _context.SaveChangesAsync();
             return true;
         }

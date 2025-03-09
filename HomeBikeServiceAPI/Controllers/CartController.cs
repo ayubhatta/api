@@ -2,9 +2,14 @@
 using HomeBikeServiceAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using System;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace HomeBikeServiceAPI.Controllers
@@ -16,18 +21,150 @@ namespace HomeBikeServiceAPI.Controllers
     {
         private readonly CartService _cartService;
         private readonly BikePartsService _bikePartsService;
+        private readonly ILogger<CartController> _logger;
+        private const string ImageFolder = "Images/BikeParts";
+        private const int MaxImageWidth = 1024;  // Max width for resizing images
 
-        public CartController(CartService cartService, BikePartsService bikePartsService)
+        public CartController(CartService cartService, BikePartsService bikePartsService, ILogger<CartController> logger)
         {
             _cartService = cartService;
             _bikePartsService = bikePartsService;
+            _logger = logger;
         }
+
+
+
+        public class ImgBBResponse
+        {
+            public ImgBBData Data { get; set; }
+            public bool Success { get; set; }
+            public int Status { get; set; }
+        }
+
+        public class ImgBBData
+        {
+            public string Id { get; set; }
+            public string Title { get; set; }
+            public string UrlViewer { get; set; }
+            [JsonPropertyName("url")]
+            public string Url { get; set; }
+            public string DisplayUrl { get; set; }
+            public string Width { get; set; }
+            public string Height { get; set; }
+            public string Size { get; set; }
+            public string Time { get; set; }
+            public string Expiration { get; set; }
+            public ImgBBImage Image { get; set; }
+            public ImgBBImage Thumb { get; set; }
+            public ImgBBImage Medium { get; set; }
+            public string DeleteUrl { get; set; }
+        }
+
+        public class ImgBBImage
+        {
+            public string Filename { get; set; }
+            public string Name { get; set; }
+            public string Mime { get; set; }
+            public string Extension { get; set; }
+            public string Url { get; set; }
+        }
+
+
+        // Method to resize images if they exceed a certain size
+        private async Task<byte[]> ResizeImage(IFormFile image, int maxWidth = MaxImageWidth)
+        {
+            using var imageStream = image.OpenReadStream();
+            using var imageToResize = Image.Load(imageStream);
+
+            // Resize the image to the max width while maintaining the aspect ratio
+            if (imageToResize.Width > maxWidth)
+            {
+                imageToResize.Mutate(x => x.Resize(maxWidth, 0)); // Resize keeping aspect ratio
+            }
+
+            using var outputStream = new MemoryStream();
+            imageToResize.Save(outputStream, new JpegEncoder()); // Save as JPEG
+            return outputStream.ToArray();
+        }
+
+        // Upload image to ImgBB and get URL
+        private async Task<string> UploadToImgBB(IFormFile file)
+        {
+            string apiKey = "d0c73e0ae1562c672259e39238e3d36f";  // Replace with your actual API key
+            string url = $"https://api.imgbb.com/1/upload?key={apiKey}";
+
+            using var client = new HttpClient();
+            using var content = new MultipartFormDataContent();
+
+            // Create a StreamContent for the file
+            var imageContent = new StreamContent(file.OpenReadStream());
+            content.Add(imageContent, "image", file.FileName);
+
+            // Post the request to ImgBB API
+            var response = await client.PostAsync(url, content);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError($"ImgBB upload failed: {await response.Content.ReadAsStringAsync()}");
+                return null;
+            }
+
+            // Deserialize the response body
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation("ImgBB Response: {ResponseBody}", responseBody);
+
+            try
+            {
+                // Manually parse the response body using JsonDocument
+                var jsonResponse = JsonDocument.Parse(responseBody);
+
+                // Extract the URL from the response
+                var imgUrl = jsonResponse.RootElement
+                    .GetProperty("data")
+                    .GetProperty("url")
+                    .GetString();
+
+                // Check if the URL exists and return it
+                if (!string.IsNullOrEmpty(imgUrl))
+                {
+                    _logger.LogInformation("ImgBB Image URL: {ImgUrl}", imgUrl);
+                    return imgUrl;
+                }
+                else
+                {
+                    _logger.LogError("ImgBB response does not contain a valid URL.");
+                    return null;
+                }
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError($"Failed to parse ImgBB response: {ex.Message}");
+                return null;
+            }
+        }
+
+
+        private async Task<string> GetImgBBUrlAsync(string partImage)
+        {
+            // Assuming partImage contains the ImgBB URL, if not, replace with logic to fetch from ImgBB
+            if (!string.IsNullOrEmpty(partImage))
+            {
+                return partImage;
+            }
+            else
+            {
+                // Handle the case where no ImgBB URL is available, possibly return a placeholder image URL.
+                return "https://default-image-url.com";
+            }
+        }
+
 
         private int GetUserIdFromToken()
         {
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
             return userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
         }
+        
+
 
         // Add to Cart or Update Existing Cart Item
         [HttpPost("add")]
@@ -137,9 +274,11 @@ namespace HomeBikeServiceAPI.Controllers
                     if (bikePart != null)
                     {
                         // Assuming the bike part image is stored under "wwwroot/BikePartImages" directory or similar
-                        var imageUrl = bikePart.PartImage != null
+                        /*var imageUrl = bikePart.PartImage != null
                             ? $"{Request.Scheme}://{Request.Host}{Request.PathBase}/BikeParts/{bikePart.PartImage}"
-                            : null;
+                            : null;*/
+
+                        var imageUrl = await GetImgBBUrlAsync(bikePart.PartImage);
 
                         cartWithPartDetails.Add(new
                         {

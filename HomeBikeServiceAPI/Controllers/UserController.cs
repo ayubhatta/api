@@ -368,6 +368,7 @@ namespace HomeBikeServiceAPI.Controllers
             {
                 Name = user.FullName,
                 PhoneNumber = user.PhoneNumber,
+                UserId = user.Id,
                 IsAssignedTo = null
             };
 
@@ -381,6 +382,7 @@ namespace HomeBikeServiceAPI.Controllers
                 fullName = mechanic.Name,
                 phoneNumber = mechanic.PhoneNumber,
                 email = user.Email,
+                userId = mechanic.UserId,
                 isAdmin = user.IsAdmin,
                 role = (int)user.Role  // Assuming 'Mechanic' is represented by 2 in your enum
             };

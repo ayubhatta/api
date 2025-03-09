@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,5 +21,8 @@ namespace HomeBikeServiceAPI.Models
         public int? IsAssignedTo { get; set; } // Nullable, defaults to null
 
         public Booking Booking { get; set; }
+        [ForeignKey("UserId")]
+        public int? UserId { get; set; } // Nullable, foreign key from Users table
+        public User User { get; set; } // Navigation property to User    }
     }
 }

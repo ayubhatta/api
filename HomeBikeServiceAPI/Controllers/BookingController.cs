@@ -57,7 +57,8 @@ namespace HomeBikeServiceAPI.Controllers
                 }
 
                 // Check if BikeId exists
-                var bikeNumberExists = await _context.Bookings.AnyAsync(b => b.BikeNumber == bookingDto.BikeNumber);
+                var bikeNumberExists = await _context.Bookings
+                    .AnyAsync(b => b.BikeNumber == bookingDto.BikeNumber && b.UserId != bookingDto.UserId);
                 if (bikeNumberExists)
                 {
                     return Ok(new { success = false, message = "Bike number already booked." });
@@ -171,7 +172,10 @@ namespace HomeBikeServiceAPI.Controllers
                 }
 
                 // Check if the new BikeNumber is already booked by another entry
-                var bikeNumberExists = await _context.Bookings.AnyAsync(b => b.BikeNumber == updateBookingDto.BikeNumber && b.Id != updateBookingDto.BookingId);
+                var bikeNumberExists = await _context.Bookings
+                    .AnyAsync(b => b.BikeNumber == updateBookingDto.BikeNumber &&
+                    b.UserId != updateBookingDto.UserId &&
+                    b.Id != updateBookingDto.BookingId);
                 if (bikeNumberExists)
                 {
                     return Ok(new { success = false, message = "Bike number already booked." });
@@ -246,6 +250,7 @@ namespace HomeBikeServiceAPI.Controllers
                 var bookings = await _context.Bookings
                     .Include(b => b.User)
                     .Include(b => b.Bike)  // Include the bike details
+                    .Include(b => b.Mechanic)
                     .Select(b => new
                     {
                         b.Id,
@@ -264,6 +269,12 @@ namespace HomeBikeServiceAPI.Controllers
                             b.Bike.BikePrice,
                             ImageUrl = b.Bike.BikeImage 
                             //ImageUrl = b.Bike.BikeImage != null ? $"{Request.Scheme}://{Request.Host}/BikeProducts/{b.Bike.BikeImage}" : null // Construct image URL
+                        },
+                        b.MechanicId,
+                        MechanicDetails = new
+                        {
+                            b.Mechanic.Name,
+                            b.Mechanic.PhoneNumber
                         },
                         b.BikeChasisNumber,
                         b.BikeDescription,
@@ -299,6 +310,7 @@ namespace HomeBikeServiceAPI.Controllers
                     .Where(b => b.UserId == userId)
                     .Include(b => b.User)
                     .Include(b => b.Bike)  // Include the bike details
+                    .Include(b => b.Mechanic)
                     .Select(b => new
                     {
                         b.Id,
@@ -317,6 +329,12 @@ namespace HomeBikeServiceAPI.Controllers
                             b.Bike.BikePrice,
                             ImageUrl = b.Bike.BikeImage
                             //ImageUrl = b.Bike.BikeImage != null ? $"{Request.Scheme}://{Request.Host}/BikeProducts/{b.Bike.BikeImage}" : null // Construct image URL
+                        },
+                        b.MechanicId,
+                        MechanicDetails = new
+                        {
+                            b.Mechanic.Name,
+                            b.Mechanic.PhoneNumber
                         },
                         b.BikeChasisNumber,
                         b.BikeDescription,

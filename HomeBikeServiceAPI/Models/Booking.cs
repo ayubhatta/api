@@ -18,6 +18,9 @@ namespace HomeBikeServiceAPI.Models
         public int BikeId { get; set; }
         public virtual BikeProduct Bike { get; set; }
 
+        public int? MechanicId { get; set; }
+        public virtual Mechanic Mechanic { get; set; }
+
         [MaxLength(255)] 
         public string BookingAddress { get; set; } 
 

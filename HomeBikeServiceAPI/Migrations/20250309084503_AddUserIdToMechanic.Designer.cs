@@ -4,6 +4,7 @@ using HomeBikeServiceAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeBikeServiceAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250309084503_AddUserIdToMechanic")]
+    partial class AddUserIdToMechanic
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,9 +132,6 @@ namespace HomeBikeServiceAPI.Migrations
                     b.Property<TimeOnly?>("BookingTime")
                         .HasColumnType("time");
 
-                    b.Property<int?>("MechanicId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -242,9 +242,7 @@ namespace HomeBikeServiceAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsAssignedTo")
-                        .IsUnique()
-                        .HasFilter("[IsAssignedTo] IS NOT NULL");
+                    b.HasIndex("IsAssignedTo");
 
                     b.HasIndex("UserId");
 
@@ -442,8 +440,8 @@ namespace HomeBikeServiceAPI.Migrations
             modelBuilder.Entity("HomeBikeServiceAPI.Models.Mechanic", b =>
                 {
                     b.HasOne("HomeBikeServiceAPI.Models.Booking", "Booking")
-                        .WithOne("Mechanic")
-                        .HasForeignKey("HomeBikeServiceAPI.Models.Mechanic", "IsAssignedTo");
+                        .WithMany()
+                        .HasForeignKey("IsAssignedTo");
 
                     b.HasOne("HomeBikeServiceAPI.Models.User", "User")
                         .WithMany()
@@ -452,12 +450,6 @@ namespace HomeBikeServiceAPI.Migrations
                     b.Navigation("Booking");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("HomeBikeServiceAPI.Models.Booking", b =>
-                {
-                    b.Navigation("Mechanic")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
