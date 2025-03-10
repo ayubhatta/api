@@ -245,7 +245,7 @@ namespace HomeBikeServiceAPI.Controllers
                         b.Bike.BikeModel,
                         b.Bike.BikePrice
                     }
-                }).ToList()
+                }).ToList() 
             };
 
             return Ok(response);
@@ -455,7 +455,6 @@ namespace HomeBikeServiceAPI.Controllers
 
 
 
-
         // GET: api/mechanics/assigned/{userId}
         [HttpGet("assigned/{userId}")]
         public async Task<IActionResult> GetAssignedMechanicById(int userId)
@@ -492,9 +491,25 @@ namespace HomeBikeServiceAPI.Controllers
                     b.BikeNumber,
                     UserDetails = new
                     {
+                        userId = b.UserId,
                         b.User.FullName,
                         b.User.Email,
-                        b.User.PhoneNumber
+                        b.User.PhoneNumber,
+                        Cart = _context.Carts
+                            .Where(c => c.UserId == b.UserId) // Fetch only carts belonging to this user
+                            .Include(c => c.BikeParts) // Include BikeParts details
+                            .Select(c => new
+                            {
+                                c.Id,
+                                c.BikePartsId,
+                                c.Quantity,
+                                CartDetails = new
+                                {
+                                    c.BikeParts.PartName,
+                                    c.BikeParts.Description,
+                                    c.BikeParts.Price
+                                }
+                            }).ToList()
                     },
                     BikeDetails = new
                     {
@@ -507,7 +522,6 @@ namespace HomeBikeServiceAPI.Controllers
 
             return Ok(response);
         }
-
 
 
         // GET: api/mechanics/unassigned/{id}
