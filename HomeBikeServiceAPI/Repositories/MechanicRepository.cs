@@ -19,22 +19,21 @@ namespace HomeBikeServiceAPI.Repositories
         {
             return await _context.Mechanics
                 .Include(m => m.Booking)
+                    .ThenInclude(b => b.User)  // Include User details in the booking
+                .Include(m => m.Booking)
+                    .ThenInclude(b => b.Bike)  // Include Bike details in the booking
                 .ToListAsync();
         }
+
 
         public async Task<Mechanic> GetMechanicByIdAsync(int userId)
         {
             return await _context.Mechanics
                 .Include(m => m.Booking)
+                    .ThenInclude(b => b.User)  // Include User details in the booking
+                .Include(m => m.Booking)
+                    .ThenInclude(b => b.Bike)  // Include Bike details in the booking
                 .FirstOrDefaultAsync(m => m.UserId == userId);
-        }
-
-
-        public async Task<Mechanic> GetMechanicByUserIdAsync(int userId)
-        {
-            return await _context.Mechanics
-                                  .Include(m => m.Booking)
-                                  .FirstOrDefaultAsync(m => m.UserId == userId);
         }
 
 

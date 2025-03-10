@@ -43,11 +43,45 @@ namespace HomeBikeServiceAPI.Controllers
             {
                 var mechanics = await _mechanicRepository.GetAllMechanicsAsync();
 
+                var response = mechanics.Select(m => new
+                {
+                    mechanicId = m.Id,
+                    fullName = m.Name,  // Assuming 'FullName' property exists in the 'Mechanic' model
+                    isAssignedTo = m.IsAssignedTo,
+                    bookingDetails = new
+                    {
+                        id = m.Booking.Id,
+                        bookingAddress = m.Booking.BookingAddress,
+                        bikeChasisNumber = m.Booking.BikeChasisNumber,
+                        bikeDescription = m.Booking.BikeDescription,
+                        bookingDate = m.Booking.BookingDate?.ToString("yyyy-MM-dd"),
+                        bookingTime = m.Booking.BookingTime?.ToString(@"hh\:mm\:ss"),
+                        status = m.Booking.Status,
+                        total = m.Booking.Total,
+                        bikeNumber = m.Booking.BikeNumber,
+                        userId = m.Booking.UserId,
+                        userDetails = new
+                        {
+                            fullName = m.Booking.User.FullName,
+                            email = m.Booking.User.Email,
+                            phoneNumber = m.Booking.User.PhoneNumber
+                        },
+                        bikeId = m.Booking.BikeId,
+                        bikeDetails = new
+                        {
+                            bikeName = m.Booking.Bike.BikeName,
+                            bikeModel = m.Booking.Bike.BikeModel,
+                            bikePrice = m.Booking.Bike.BikePrice
+                        }
+                    },
+                    userId = m.UserId
+                });
+
                 return Ok(new
                 {
                     success = true,
                     message = "Mechanics retrieved successfully.",
-                    data = mechanics
+                    data = response
                 });
             }
             catch (Exception ex)
@@ -62,14 +96,56 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
+
+
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetMechanicById(int userId)
         {
             var mechanic = await _mechanicRepository.GetMechanicByIdAsync(userId);
             if (mechanic == null) return NotFound(new { message = "Mechanic not found." });
 
-            return Ok(mechanic);
+            var response = new
+            {
+                mechanicId = mechanic.Id,
+                fullName = mechanic.Name,  // Assuming 'FullName' property exists in the 'Mechanic' model
+                isAssignedTo = mechanic.IsAssignedTo,
+                bookingDetails = new
+                {
+                    id = mechanic.Booking.Id,
+                    bookingAddress = mechanic.Booking.BookingAddress,
+                    bikeChasisNumber = mechanic.Booking.BikeChasisNumber,
+                    bikeDescription = mechanic.Booking.BikeDescription,
+                    bookingDate = mechanic.Booking.BookingDate?.ToString("yyyy-MM-dd"),
+                    bookingTime = mechanic.Booking.BookingTime?.ToString(@"hh\:mm\:ss"),
+                    status = mechanic.Booking.Status,
+                    total = mechanic.Booking.Total,
+                    bikeNumber = mechanic.Booking.BikeNumber,
+                    userId = mechanic.Booking.UserId,
+                    userDetails = new
+                    {
+                        fullName = mechanic.Booking.User.FullName,
+                        email = mechanic.Booking.User.Email,
+                        phoneNumber = mechanic.Booking.User.PhoneNumber
+                    },
+                    bikeId = mechanic.Booking.BikeId,
+                    bikeDetails = new
+                    {
+                        bikeName = mechanic.Booking.Bike.BikeName,
+                        bikeModel = mechanic.Booking.Bike.BikeModel,
+                        bikePrice = mechanic.Booking.Bike.BikePrice
+                    }
+                }
+            };
+
+            return Ok(new
+            {
+                success = true,
+                message = "Mechanic details retrieved successfully.",
+                data = response
+            });
         }
+
+
 
 
         [HttpPut("{id}")]
