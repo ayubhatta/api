@@ -57,6 +57,13 @@ namespace HomeBikeServiceAPI.Controllers
                 }
 
                 // Check if BikeId exists
+                var bikeExists = await _context.BikeProducts.AnyAsync(b => b.Id == bookingDto.BikeId);
+                if (!bikeExists)
+                {
+                    return Ok(new { success = false, message = "Bike not found." });  // Error message for BikeId not found
+                }
+
+                // Check if BikeNumber exists
                 var bikeNumberExists = await _context.Bookings
                     .AnyAsync(b => b.BikeNumber == bookingDto.BikeNumber && b.UserId != bookingDto.UserId);
                 if (bikeNumberExists)
@@ -466,7 +473,7 @@ namespace HomeBikeServiceAPI.Controllers
                     return NotFound(new { success = false, message = "Booking not found" });
                 }
 
-                var assignedMechanic = await _context.Mechanics.FirstOrDefaultAsync(m => m.IsAssignedTo == id);
+                var assignedMechanic = await _context.Mechanics.FirstOrDefaultAsync(m => m.IsAssignedTo.Contains(id));
                 if (assignedMechanic != null)
                 {
                     assignedMechanic.IsAssignedTo = null;
@@ -484,6 +491,9 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error" });
             }
         }
+
+
+
         [HttpGet("users")]
         public async Task<IActionResult> GetAllUsersFromBookings()
         {

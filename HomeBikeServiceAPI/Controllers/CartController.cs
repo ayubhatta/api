@@ -16,7 +16,7 @@ namespace HomeBikeServiceAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "User")]
+    //[Authorize(Roles = "User")]
     public class CartController : ControllerBase
     {
         private readonly CartService _cartService;
@@ -545,7 +545,7 @@ namespace HomeBikeServiceAPI.Controllers
 
         // Admin: Delete all carts from the carts table
         [HttpDelete("admin/all")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAllCarts()
         {
             var result = await _cartService.DeleteAllCarts();

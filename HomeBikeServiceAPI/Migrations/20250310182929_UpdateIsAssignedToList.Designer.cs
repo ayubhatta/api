@@ -4,6 +4,7 @@ using HomeBikeServiceAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeBikeServiceAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310182929_UpdateIsAssignedToList")]
+    partial class UpdateIsAssignedToList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -220,6 +223,35 @@ namespace HomeBikeServiceAPI.Migrations
                     b.ToTable("Feedbacks");
                 });
 
+            modelBuilder.Entity("HomeBikeServiceAPI.Models.Mechanic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("IsAssignedTo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Mechanics");
+                });
+
             modelBuilder.Entity("HomeBikeServiceAPI.Models.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -367,35 +399,6 @@ namespace HomeBikeServiceAPI.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Mechanic", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("IsAssignedToJson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Mechanics");
-                });
-
             modelBuilder.Entity("HomeBikeServiceAPI.Models.Booking", b =>
                 {
                     b.HasOne("HomeBikeServiceAPI.Models.BikeProduct", "Bike")
@@ -404,7 +407,7 @@ namespace HomeBikeServiceAPI.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Mechanic", "Mechanic")
+                    b.HasOne("HomeBikeServiceAPI.Models.Mechanic", "Mechanic")
                         .WithMany("Bookings")
                         .HasForeignKey("MechanicId");
 
@@ -443,7 +446,7 @@ namespace HomeBikeServiceAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Mechanic", b =>
+            modelBuilder.Entity("HomeBikeServiceAPI.Models.Mechanic", b =>
                 {
                     b.HasOne("HomeBikeServiceAPI.Models.User", "User")
                         .WithMany()
@@ -452,7 +455,7 @@ namespace HomeBikeServiceAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Mechanic", b =>
+            modelBuilder.Entity("HomeBikeServiceAPI.Models.Mechanic", b =>
                 {
                     b.Navigation("Bookings");
                 });

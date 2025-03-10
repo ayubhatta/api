@@ -66,7 +66,7 @@ namespace HomeBikeServiceAPI.Repositories
             if (mechanic == null) return false;
 
             _context.Mechanics.Remove(mechanic);
-            _context.Users.Remove(mechanic.User);
+            //_context.Users.Remove(mechanic.User);
             await _context.SaveChangesAsync();
             return true;
         }

@@ -38,9 +38,16 @@ namespace HomeBikeServiceAPI.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Feedback>()
-            .HasOne(f => f.User)
-            .WithMany()
-            .HasForeignKey(f => f.UserId);
+                .HasOne(f => f.User)
+                .WithMany()
+                .HasForeignKey(f => f.UserId);
+
+            modelBuilder.Entity<Mechanic>()
+                .HasOne(m => m.User)
+                .WithOne()
+                .HasForeignKey<Mechanic>(m => m.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
         }
 

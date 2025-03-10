@@ -2,8 +2,7 @@
 {
     public class MechanicUpdateDto
     {
-        public int? IsAssignedTo { get; set; }
+        // Nullable list of booking Ids that a mechanic can be assigned to
+        public ICollection<int>? IsAssignedTo { get; set; }
     }
-
-
 }

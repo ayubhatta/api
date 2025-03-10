@@ -39,9 +39,13 @@ namespace HomeBikeServiceAPI.BackgroundServices
                 var booking = await _context.Bookings.FindAsync(bookingId);
                 if (booking == null) return;
 
-                // Retrieve the mechanic assigned to the booking
-                var mechanic = await _context.Mechanics.FirstOrDefaultAsync(m => m.IsAssignedTo == bookingId);
-                if (mechanic == null) return; // No mechanic assigned
+                // Retrieve all mechanics and filter them in-memory
+                var mechanics = _context.Mechanics
+                    .AsEnumerable()  // Use AsEnumerable to filter in memory
+                    .Where(m => m.IsAssignedTo != null && m.IsAssignedTo.Contains(bookingId))
+                    .FirstOrDefault();  // Use FirstOrDefault (synchronous method) instead of FirstOrDefaultAsync
+
+                if (mechanics == null) return; // No mechanic assigned
 
                 // Retrieve the user associated with the booking
                 var user = await _context.Users.FindAsync(booking.UserId);
@@ -50,8 +54,8 @@ namespace HomeBikeServiceAPI.BackgroundServices
                 // Construct the email body content
                 var emailBody = "<p>Dear User,</p>";
                 emailBody += "<p>Your bike servicing has been assigned to a mechanic.</p>";
-                emailBody += $"<p><strong>Mechanic Name: {mechanic.Name}</strong></p>";
-                emailBody += $"<p><strong>Mechanic Phone: {mechanic.PhoneNumber}</strong></p>";
+                emailBody += $"<p><strong>Mechanic Name: {mechanics.Name}</strong></p>";
+                emailBody += $"<p><strong>Mechanic Phone: {mechanics.PhoneNumber}</strong></p>";
                 emailBody += "<p>We will notify you once the service begins and is completed.</p>";
                 emailBody += "<p>Regards,<br/>Ride Revive</p>";
 
@@ -76,6 +80,8 @@ namespace HomeBikeServiceAPI.BackgroundServices
 
 
 
+
+
         // Job for In Progress status
         public async Task InProgressJob(int bookingId)
         {
@@ -87,11 +93,19 @@ namespace HomeBikeServiceAPI.BackgroundServices
                 var user = await _context.Users.FindAsync(booking.UserId);
                 if (user == null || string.IsNullOrEmpty(user.Email)) return;
 
+                // If you're querying mechanics here, handle the IsAssignedTo filtering in memory
+                // For instance, if you need the mechanic, you could use AsEnumerable to do the filtering in-memory
+                var mechanic = _context.Mechanics
+                    .AsEnumerable()  // Use AsEnumerable to filter in-memory
+                    .FirstOrDefault(m => m.IsAssignedTo.Contains(bookingId));
+
+                if (mechanic == null) return;  // No mechanic assigned
+
                 var emailBody = "<p>Dear User,</p>";
                 emailBody += "<p>Your bike servicing is in progress.</p>";
+                emailBody += $"<p><strong>Mechanic Name: {mechanic.Name}</strong></p>";
+                emailBody += $"<p><strong>Mechanic Phone: {mechanic.PhoneNumber}</strong></p>";
                 emailBody += "<p>Regards,<br/>Ride Revive</p>";
-
-                
 
                 var mailRequest = new MailRequestHelper
                 {
@@ -102,19 +116,13 @@ namespace HomeBikeServiceAPI.BackgroundServices
 
                 await _emailService.SendEmailAsync(mailRequest);
                 _logger.LogInformation($"In-progress email sent to {user.Email}.");
-
-                Console.WriteLine($"Sending email to user {booking.UserId} that the service is in progress.");
-                // Call your email service here
-
-
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error sending InProgress email for BookingId {bookingId}: {ex.Message}");
             }
-
-
         }
+
 
         // Job for Completed status
         public async Task CompletedJob(int bookingId)
@@ -127,12 +135,21 @@ namespace HomeBikeServiceAPI.BackgroundServices
                 var user = await _context.Users.FindAsync(booking.UserId);
                 if (user == null || string.IsNullOrEmpty(user.Email)) return;
 
+                // If you're querying mechanics here, handle the IsAssignedTo filtering in memory
+                var mechanic = _context.Mechanics
+                    .AsEnumerable()  // Use AsEnumerable to filter in-memory
+                    .FirstOrDefault(m => m.IsAssignedTo.Contains(bookingId));
+
+                if (mechanic == null) return;  // No mechanic assigned
+
                 // Fetch the total amount from the TotalSum API
                 decimal totalAmount = await GetTotalAmount(user.Id);
 
                 var emailBody = "<p>Dear User,</p>";
                 emailBody += "<p>Your bike servicing has been completed.</p>";
                 emailBody += $"<p><strong>Total Amount: {totalAmount}</strong></p>";
+                emailBody += $"<p><strong>Mechanic Name: {mechanic.Name}</strong></p>";
+                emailBody += $"<p><strong>Mechanic Phone: {mechanic.PhoneNumber}</strong></p>";
                 emailBody += "<p>Regards,<br/>Ride Revive</p>";
 
                 var mailRequest = new MailRequestHelper
@@ -150,6 +167,7 @@ namespace HomeBikeServiceAPI.BackgroundServices
                 _logger.LogError($"Error sending Completed email for BookingId {bookingId}: {ex.Message}");
             }
         }
+
 
         // Helper method to get total amount from API
         private async Task<decimal> GetTotalAmount(int userId)
