@@ -536,5 +536,32 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error" });
             }
         }
+
+        [HttpDelete("bookings")]
+        public async Task<IActionResult> DeleteAllBookings()
+        {
+            try
+            {
+                // Retrieve all bookings
+                var bookings = _context.Bookings.ToList();
+
+                if (!bookings.Any())
+                {
+                    return NotFound(new { message = "No bookings found to delete." });
+                }
+
+                // Remove all bookings
+                _context.Bookings.RemoveRange(bookings);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "All bookings have been deleted." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
+            }
+        }
+
+
     }
 }

@@ -463,6 +463,27 @@ namespace HomeBikeServiceAPI.Controllers
             }
         }
 
+
+
+        [HttpDelete("delete-all")]
+        public async Task<IActionResult> DeleteAllUsers()
+        {
+            var users = await _context.Users.ToListAsync();
+
+            if (!users.Any())
+            {
+                return NotFound(new { success = false, message = "No users found to delete." });
+            }
+
+            _context.Users.RemoveRange(users);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "All users have been deleted successfully." });
+        }
+
+
+
+
         // Helper method to generate OTP
         private string GenerateOtp()
         {

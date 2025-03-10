@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HomeBikeServiceAPI.Models
 {
@@ -19,6 +20,7 @@ namespace HomeBikeServiceAPI.Models
         public virtual BikeProduct Bike { get; set; }
 
         public int? MechanicId { get; set; }
+        [JsonIgnore]
         public virtual Mechanic Mechanic { get; set; }
 
         [MaxLength(255)] 

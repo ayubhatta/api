@@ -1,10 +1,12 @@
-﻿using HomeBikeServiceAPI.DTO;
+﻿using HomeBikeServiceAPI.Data;
+using HomeBikeServiceAPI.DTO;
 using HomeBikeServiceAPI.Models;
 using HomeBikeServiceAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
@@ -30,12 +32,14 @@ namespace HomeBikeServiceAPI.Controllers
         private readonly ILogger<BikePartsController> _logger;
         private const string ImageFolder = "Images/BikeParts";
         private const int MaxImageWidth = 1024;  // Max width for resizing images
+        private readonly AppDbContext _context;
 
-        public BikePartsController(BikePartsService bikePartsService, IWebHostEnvironment hostEnvironment, ILogger<BikePartsController> logger)
+        public BikePartsController(BikePartsService bikePartsService, IWebHostEnvironment hostEnvironment, ILogger<BikePartsController> logger, AppDbContext context)
         {
             _bikePartsService = bikePartsService;
             _hostEnvironment = hostEnvironment;
             _logger = logger;
+            _context = context;
         }
 
         public class ImgBBResponse
@@ -419,5 +423,26 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
             }
         }
+
+
+        [HttpDelete("delete-all")]
+        public async Task<IActionResult> DeleteAll()
+        {
+            try
+            {
+                _context.BikeParts.RemoveRange(_context.BikeParts);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "All bike parts deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while deleting all bike parts.");
+                return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
+            }
+        }
+
+
+
     }
 }

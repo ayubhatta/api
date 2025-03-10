@@ -228,5 +228,25 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error, please try again later." });
             }
         }
+
+
+        [HttpDelete("delete-all")]
+        public async Task<IActionResult> DeleteAll()
+        {
+            try
+            {
+                _context.Feedbacks.RemoveRange(_context.Feedbacks);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "All Feedbacks deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while deleting all feedbacks.");
+                return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
+            }
+        }
+
+
     }
 }

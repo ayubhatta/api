@@ -3,6 +3,8 @@ using HomeBikeServiceAPI.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HomeBikeServiceAPI.Repositories;
+using Microsoft.Extensions.Hosting;
 
 namespace HomeBikeServiceAPI.Services
 {
@@ -60,6 +62,5 @@ namespace HomeBikeServiceAPI.Services
             }
             return false;  // If bike part is not found, return false.
         }
-
     }
 }

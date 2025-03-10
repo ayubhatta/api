@@ -41,6 +41,7 @@ namespace HomeBikeServiceAPI.Data
             .HasOne(f => f.User)
             .WithMany()
             .HasForeignKey(f => f.UserId);
+
         }
 
     }

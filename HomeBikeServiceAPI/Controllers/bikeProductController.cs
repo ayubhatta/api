@@ -413,5 +413,24 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
             }
         }
+
+        [HttpDelete("delete-all")]
+        public async Task<IActionResult> DeleteAll()
+        {
+            try
+            {
+                _context.BikeProducts.RemoveRange(_context.BikeProducts);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "All bike products deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while creating BikeProduct.");
+                return StatusCode(500, new { message = "Internal Server Error", error = ex.InnerException?.Message ?? ex.Message });
+            }
+
+        }
+
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HomeBikeServiceAPI.Models
 {
@@ -20,6 +21,7 @@ namespace HomeBikeServiceAPI.Models
         [ForeignKey("Booking")]
         public int? IsAssignedTo { get; set; } // Nullable, defaults to null
 
+        //[JsonIgnore]
         public Booking Booking { get; set; }
         [ForeignKey("UserId")]
         public int? UserId { get; set; } // Nullable, foreign key from Users table

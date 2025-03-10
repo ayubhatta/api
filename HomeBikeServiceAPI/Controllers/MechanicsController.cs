@@ -355,18 +355,58 @@ namespace HomeBikeServiceAPI.Controllers
             return Ok(response);
         }
 
-        // GET: api/mechanics/assigned/{id}
+        // GET: api/mechanics/assigned/{userId}
         [HttpGet("assigned/{userId}")]
         public async Task<IActionResult> GetAssignedMechanicById(int userId)
         {
             var mechanic = await _context.Mechanics
-                .FirstOrDefaultAsync(m => m.UserId == userId && m.IsAssignedTo.HasValue);
+                .Where(m => m.UserId == userId && m.IsAssignedTo.HasValue)
+                .Include(m => m.Booking)
+                    .ThenInclude(b => b.User)
+                .Include(m => m.Booking)
+                    .ThenInclude(b => b.Bike)
+                .FirstOrDefaultAsync();
+
             if (mechanic == null)
             {
                 return NotFound($"Assigned mechanic with ID {userId} not found.");
             }
-            return Ok(mechanic);
+
+            var response = new
+            {
+                mechanic.Id,
+                mechanic.Name,
+                mechanic.PhoneNumber,
+                mechanic.IsAssignedTo,
+                BookingDetails = mechanic.Booking != null ? new
+                {
+                    mechanic.Booking.Id,
+                    mechanic.Booking.BookingAddress,
+                    mechanic.Booking.BikeChasisNumber,
+                    mechanic.Booking.BikeDescription,
+                    mechanic.Booking.BookingDate,
+                    mechanic.Booking.BookingTime,
+                    mechanic.Booking.Status,
+                    mechanic.Booking.Total,
+                    mechanic.Booking.BikeNumber,
+                    UserDetails = new
+                    {
+                        mechanic.Booking.User.FullName,
+                        mechanic.Booking.User.Email,
+                        mechanic.Booking.User.PhoneNumber
+                    },
+                    BikeDetails = new
+                    {
+                        mechanic.Booking.Bike.BikeName,
+                        mechanic.Booking.Bike.BikeModel,
+                        mechanic.Booking.Bike.BikePrice
+                    }
+                } : null
+            };
+
+            return Ok(response);
         }
+
 
         // GET: api/mechanics/unassigned/{id}
         [HttpGet("unassigned/{userId}")]
@@ -382,6 +422,8 @@ namespace HomeBikeServiceAPI.Controllers
             return Ok(mechanic);
         }
 
+
+
         [HttpDelete("{userId}")]
         [Authorize(Roles = "Admin")] // Only admins can delete mechanics
         public async Task<IActionResult> DeleteMechanic(int userId)
@@ -391,6 +433,27 @@ namespace HomeBikeServiceAPI.Controllers
                 return NotFound(new { message = "Mechanic not found." });
             return NoContent();
         }
+
+
+        [HttpDelete("delete-all")]
+        public async Task<IActionResult> DeleteAllUsers()
+        {
+            try
+            {
+                // Step 1: Delete all related records in the Bookings table
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Bookings");
+
+                // Step 2: Delete all Users
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Users");
+
+                return Ok(new { success = true, message = "All users have been deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "An error occurred while deleting users.", error = ex.Message });
+            }
+        }
+
     }
 
 }
