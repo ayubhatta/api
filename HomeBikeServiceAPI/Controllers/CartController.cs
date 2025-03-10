@@ -309,6 +309,58 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
+        // Get cart by user ID
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetCartsByUserId(int userId)
+        {
+            if (userId <= 0) return BadRequest("Invalid User ID.");
+
+            try
+            {
+                // Fetch the cart items for the user
+                var carts = await _cartService.GetCartItemsByUser(userId);
+
+                if (carts == null || !carts.Any()) return NotFound("No cart items found for this user.");
+
+                var cartWithPartDetails = new List<object>();
+
+                foreach (var cart in carts)
+                {
+                    var bikePart = await _bikePartsService.GetBikePartById(cart.BikePartsId);
+                    if (bikePart != null)
+                    {
+                        var imageUrl = await GetImgBBUrlAsync(bikePart.PartImage);
+
+                        cartWithPartDetails.Add(new
+                        {
+                            cart.Id,
+                            cart.BikePartsId,
+                            cart.Quantity,
+                            cart.TotalPrice,
+                            cart.DateAdded,
+                            cart.IsPaymentDone,
+                            BikePartDetails = new
+                            {
+                                bikePart.PartName,
+                                bikePart.Description,
+                                bikePart.Price,
+                                bikePart.Quantity,
+                                ImageUrl = imageUrl
+                            }
+                        });
+                    }
+                }
+
+                return Ok(new { success = true, carts = cartWithPartDetails });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"Internal server error: {ex.Message}" });
+            }
+        }
+
+
+
         // Update cart item or add new item if it does not exist
         [HttpPut("{cartId}")]
         public async Task<IActionResult> UpdateCartItem(int cartId, CartRequest cartRequest)
