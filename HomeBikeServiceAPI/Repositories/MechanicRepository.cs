@@ -18,9 +18,9 @@ namespace HomeBikeServiceAPI.Repositories
         public async Task<IEnumerable<Mechanic>> GetAllMechanicsAsync()
         {
             return await _context.Mechanics
-                .Include(m => m.Booking)
+                .Include(m => m.Bookings)
                     .ThenInclude(b => b.User)  // Include User details in the booking
-                .Include(m => m.Booking)
+                .Include(m => m.Bookings)
                     .ThenInclude(b => b.Bike)  // Include Bike details in the booking
                 .ToListAsync();
         }
@@ -29,9 +29,9 @@ namespace HomeBikeServiceAPI.Repositories
         public async Task<Mechanic> GetMechanicByIdAsync(int userId)
         {
             return await _context.Mechanics
-                .Include(m => m.Booking)
+                .Include(m => m.Bookings)
                     .ThenInclude(b => b.User)  // Include User details in the booking
-                .Include(m => m.Booking)
+                .Include(m => m.Bookings)
                     .ThenInclude(b => b.Bike)  // Include Bike details in the booking
                 .FirstOrDefaultAsync(m => m.UserId == userId);
         }

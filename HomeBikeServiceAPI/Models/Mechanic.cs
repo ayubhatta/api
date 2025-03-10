@@ -20,9 +20,8 @@ namespace HomeBikeServiceAPI.Models
 
         [ForeignKey("Booking")]
         public int? IsAssignedTo { get; set; } // Nullable, defaults to null
-
-        //[JsonIgnore]
-        public Booking Booking { get; set; }
+                                               // A mechanic can be assigned to multiple bookings
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         [ForeignKey("UserId")]
         public int? UserId { get; set; } // Nullable, foreign key from Users table
         public User User { get; set; } // Navigation property to User    }

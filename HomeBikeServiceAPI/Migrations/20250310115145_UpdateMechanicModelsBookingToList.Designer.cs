@@ -4,6 +4,7 @@ using HomeBikeServiceAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeBikeServiceAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310115145_UpdateMechanicModelsBookingToList")]
+    partial class UpdateMechanicModelsBookingToList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,6 +132,9 @@ namespace HomeBikeServiceAPI.Migrations
                     b.Property<TimeOnly?>("BookingTime")
                         .HasColumnType("time");
 
+                    b.Property<int?>("CartId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("MechanicId")
                         .HasColumnType("int");
 
@@ -145,6 +151,8 @@ namespace HomeBikeServiceAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BikeId");
+
+                    b.HasIndex("CartId");
 
                     b.HasIndex("MechanicId");
 
@@ -404,6 +412,10 @@ namespace HomeBikeServiceAPI.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("HomeBikeServiceAPI.Models.Cart", "Cart")
+                        .WithMany()
+                        .HasForeignKey("CartId");
+
                     b.HasOne("HomeBikeServiceAPI.Models.Mechanic", "Mechanic")
                         .WithMany("Bookings")
                         .HasForeignKey("MechanicId");
@@ -415,6 +427,8 @@ namespace HomeBikeServiceAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Bike");
+
+                    b.Navigation("Cart");
 
                     b.Navigation("Mechanic");
 

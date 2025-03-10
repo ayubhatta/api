@@ -2,6 +2,7 @@
 {
     public int BookingId { get; set; }  // Added BookingId to update existing booking
     public int UserId { get; set; }
+    public int cartId { get; set; }
     public int BikeId { get; set; }
     public string BikeChasisNumber { get; set; }
     public string BikeDescription { get; set; }

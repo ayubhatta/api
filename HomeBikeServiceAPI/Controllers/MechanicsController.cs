@@ -46,35 +46,35 @@ namespace HomeBikeServiceAPI.Controllers
                 var response = mechanics.Select(m => new
                 {
                     mechanicId = m.Id,
-                    fullName = m.Name,  // Assuming 'FullName' property exists in the 'Mechanic' model
+                    fullName = m.Name,
                     isAssignedTo = m.IsAssignedTo,
-                    bookingDetails = new
+                    userId = m.UserId,
+                    bookingDetails = m.Bookings.Select(b => new  // Iterate over bookings collection
                     {
-                        id = m.Booking.Id,
-                        bookingAddress = m.Booking.BookingAddress,
-                        bikeChasisNumber = m.Booking.BikeChasisNumber,
-                        bikeDescription = m.Booking.BikeDescription,
-                        bookingDate = m.Booking.BookingDate?.ToString("yyyy-MM-dd"),
-                        bookingTime = m.Booking.BookingTime?.ToString(@"hh\:mm\:ss"),
-                        status = m.Booking.Status,
-                        total = m.Booking.Total,
-                        bikeNumber = m.Booking.BikeNumber,
-                        userId = m.Booking.UserId,
+                        id = b.Id,
+                        bookingAddress = b.BookingAddress,
+                        bikeChasisNumber = b.BikeChasisNumber,
+                        bikeDescription = b.BikeDescription,
+                        bookingDate = b.BookingDate?.ToString("yyyy-MM-dd"),
+                        bookingTime = b.BookingTime?.ToString(@"hh\:mm\:ss"),
+                        status = b.Status,
+                        total = b.Total,
+                        bikeNumber = b.BikeNumber,
+                        userId = b.UserId,
                         userDetails = new
                         {
-                            fullName = m.Booking.User.FullName,
-                            email = m.Booking.User.Email,
-                            phoneNumber = m.Booking.User.PhoneNumber
+                            fullName = b.User.FullName,
+                            email = b.User.Email,
+                            phoneNumber = b.User.PhoneNumber
                         },
-                        bikeId = m.Booking.BikeId,
-                        bikeDetails = new
+                        bikeId = b.BikeId,
+                        bikeDetails = b.Bike != null ? new
                         {
-                            bikeName = m.Booking.Bike.BikeName,
-                            bikeModel = m.Booking.Bike.BikeModel,
-                            bikePrice = m.Booking.Bike.BikePrice
-                        }
-                    },
-                    userId = m.UserId
+                            bikeName = b.Bike.BikeName,
+                            bikeModel = b.Bike.BikeModel,
+                            bikePrice = b.Bike.BikePrice
+                        } : null
+                    }).ToList()  // Convert to a list
                 });
 
                 return Ok(new
@@ -97,7 +97,6 @@ namespace HomeBikeServiceAPI.Controllers
 
 
 
-
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetMechanicById(int userId)
         {
@@ -109,32 +108,32 @@ namespace HomeBikeServiceAPI.Controllers
                 mechanicId = mechanic.Id,
                 fullName = mechanic.Name,  // Assuming 'FullName' property exists in the 'Mechanic' model
                 isAssignedTo = mechanic.IsAssignedTo,
-                bookingDetails = new
+                bookingDetails = mechanic.Bookings.Select(b => new  // Iterate over bookings collection
                 {
-                    id = mechanic.Booking.Id,
-                    bookingAddress = mechanic.Booking.BookingAddress,
-                    bikeChasisNumber = mechanic.Booking.BikeChasisNumber,
-                    bikeDescription = mechanic.Booking.BikeDescription,
-                    bookingDate = mechanic.Booking.BookingDate?.ToString("yyyy-MM-dd"),
-                    bookingTime = mechanic.Booking.BookingTime?.ToString(@"hh\:mm\:ss"),
-                    status = mechanic.Booking.Status,
-                    total = mechanic.Booking.Total,
-                    bikeNumber = mechanic.Booking.BikeNumber,
-                    userId = mechanic.Booking.UserId,
+                    id = b.Id,
+                    bookingAddress = b.BookingAddress,
+                    bikeChasisNumber = b.BikeChasisNumber,
+                    bikeDescription = b.BikeDescription,
+                    bookingDate = b.BookingDate?.ToString("yyyy-MM-dd"),
+                    bookingTime = b.BookingTime?.ToString(@"hh\:mm\:ss"),
+                    status = b.Status,
+                    total = b.Total,
+                    bikeNumber = b.BikeNumber,
+                    userId = b.UserId,
                     userDetails = new
                     {
-                        fullName = mechanic.Booking.User.FullName,
-                        email = mechanic.Booking.User.Email,
-                        phoneNumber = mechanic.Booking.User.PhoneNumber
+                        fullName = b.User.FullName,
+                        email = b.User.Email,
+                        phoneNumber = b.User.PhoneNumber
                     },
-                    bikeId = mechanic.Booking.BikeId,
-                    bikeDetails = new
+                    bikeId = b.BikeId,
+                    bikeDetails = b.Bike != null ? new
                     {
-                        bikeName = mechanic.Booking.Bike.BikeName,
-                        bikeModel = mechanic.Booking.Bike.BikeModel,
-                        bikePrice = mechanic.Booking.Bike.BikePrice
-                    }
-                }
+                        bikeName = b.Bike.BikeName,
+                        bikeModel = b.Bike.BikeModel,
+                        bikePrice = b.Bike.BikePrice
+                    } : null
+                }).ToList()  // Convert to a list of booking details
             };
 
             return Ok(new
@@ -148,109 +147,123 @@ namespace HomeBikeServiceAPI.Controllers
 
 
 
+
+
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMechanicAsync(int id, MechanicUpdateDto mechanicDto)
         {
-            var existingMechanic = await _context.Mechanics.FindAsync(id);
+            var existingMechanic = await _context.Mechanics
+                .Include(m => m.Bookings) // Include all assigned bookings
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (existingMechanic == null)
                 return NotFound(new { message = "Mechanic not found." });
 
             _logger.LogInformation("Mechanic found with ID: {MechanicId}", id);
             _logger.LogInformation("BookingId received: {BookingId}", mechanicDto.IsAssignedTo);
 
+            if (!mechanicDto.IsAssignedTo.HasValue)
+                return BadRequest(new { message = "BookingId must be provided." });
+
+            var newBooking = await _context.Bookings
+                .Include(b => b.User)
+                .Include(b => b.Bike)
+                .FirstOrDefaultAsync(b => b.Id == mechanicDto.IsAssignedTo.Value);
+
+            if (newBooking == null)
+            {
+                _logger.LogWarning("Booking with ID {BookingId} not found", mechanicDto.IsAssignedTo.Value);
+                return BadRequest(new { message = "Invalid BookingId provided." });
+            }
+
+            if (newBooking.Status != "pending")
+            {
+                _logger.LogWarning("Booking with ID {BookingId} has status {BookingStatus}. Mechanic can only be assigned to a 'Pending' booking.", mechanicDto.IsAssignedTo.Value, newBooking.Status);
+                return BadRequest(new { message = "Booking status is not 'Pending'. Mechanic cannot be assigned." });
+            }
+
             // Check if the booking is already assigned to another mechanic
-            if (mechanicDto.IsAssignedTo.HasValue)
+            if (await _context.Bookings.AnyAsync(b => b.MechanicId != null && b.MechanicId != existingMechanic.Id && b.Id == newBooking.Id))
             {
-                var bookingAssignedToAnotherMechanic = await _context.Mechanics
-                    .AnyAsync(m => m.IsAssignedTo == mechanicDto.IsAssignedTo.Value && m.Id != existingMechanic.Id);
+                _logger.LogWarning("Booking with ID {BookingId} is already assigned to another mechanic.", newBooking.Id);
+                return BadRequest(new { message = "The booking is already assigned to another mechanic." });
+            }
 
-                if (bookingAssignedToAnotherMechanic)
+            // Check for booking time conflict with the mechanic's current assignments
+            foreach (var assignedBooking in existingMechanic.Bookings)
+            {
+                if (assignedBooking.BookingDate == newBooking.BookingDate && assignedBooking.BookingTime.HasValue && newBooking.BookingTime.HasValue)
                 {
-                    _logger.LogWarning("Booking with ID {BookingId} is already assigned to another mechanic.", mechanicDto.IsAssignedTo.Value);
-                    return BadRequest(new { message = "The booking is already assigned to another mechanic." });
+                    var assignedDateTime = assignedBooking.BookingDate.Value.ToDateTime(assignedBooking.BookingTime.Value);
+                    var newBookingDateTime = newBooking.BookingDate.Value.ToDateTime(newBooking.BookingTime.Value);
+
+                    if (Math.Abs((assignedDateTime - newBookingDateTime).TotalHours) < 2)
+                    {
+                        _logger.LogWarning("Mechanic with ID {MechanicId} is already assigned to a booking within 2 hours.", id);
+                        return BadRequest(new { message = "Mechanic cannot be assigned to a booking within 2 hours of an existing booking." });
+                    }
                 }
             }
 
-            if (existingMechanic.IsAssignedTo.HasValue)
-            {
-                _logger.LogWarning("Mechanic with ID {MechanicId} is already assigned to booking ID {BookingId}", id, existingMechanic.IsAssignedTo.Value);
-                return BadRequest(new { message = "Mechanic is already assigned to a booking." });
-            }
-
-            Booking booking = null;
-            if (mechanicDto.IsAssignedTo.HasValue)
-            {
-                _logger.LogInformation("Attempting to fetch booking with ID: {BookingId}", mechanicDto.IsAssignedTo.Value);
-                booking = await _context.Bookings
-                    .Include(b => b.User)
-                    .Include(b => b.Bike)
-                    .FirstOrDefaultAsync(b => b.Id == mechanicDto.IsAssignedTo.Value);
-                if (booking == null)
-                {
-                    _logger.LogWarning("Booking with ID {BookingId} not found", mechanicDto.IsAssignedTo.Value);
-                    return BadRequest(new { message = "Invalid BookingId provided." });
-                }
-                if (booking.Status != "pending")
-                {
-                    _logger.LogWarning("Booking with ID {BookingId} has status {BookingStatus}. Mechanic can only be assigned to a 'Pending' booking.", mechanicDto.IsAssignedTo.Value, booking.Status);
-                    return BadRequest(new { message = "Booking status is not 'Pending'. Mechanic cannot be assigned." });
-                }
-
-                // Assign the booking to the mechanic
-                existingMechanic.IsAssignedTo = mechanicDto.IsAssignedTo.Value;
-
-                // Update the MechanicId in the Booking table
-                booking.MechanicId = existingMechanic.Id; // Set MechanicId to the mechanic's Id
-            }
+            // Assign the new booking to the mechanic
+            newBooking.MechanicId = existingMechanic.Id;
+            existingMechanic.Bookings.Add(newBooking); // Maintain multiple assignments
 
             _context.Mechanics.Update(existingMechanic);
-            _context.Bookings.Update(booking); // Ensure the booking is updated
+            _context.Bookings.Update(newBooking);
 
             await _context.SaveChangesAsync();
 
-            TimeSpan delay = TimeSpan.FromSeconds(1); // You can change the delay time as needed
-            _jobTriggerService.TriggerMechanicAssignedJob(booking.Id, delay);
+            // Trigger the job (if needed)
+            TimeSpan delay = TimeSpan.FromSeconds(1);
+            _jobTriggerService.TriggerMechanicAssignedJob(newBooking.Id, delay);
 
             var response = new
             {
-                existingMechanic.IsAssignedTo,
-                BookingDetails = booking != null ? new
+                AssignedMechanicId = existingMechanic.Id,
+                AssignedBookings = existingMechanic.Bookings.Select(b => new
                 {
-                    booking.Id,
-                    booking.BookingAddress,
-                    booking.BikeChasisNumber,
-                    booking.BikeDescription,
-                    booking.BookingDate,
-                    booking.BookingTime,
-                    booking.Status,
-                    booking.Total,
-                    booking.BikeNumber,
+                    b.Id,
+                    b.BookingAddress,
+                    b.BikeChasisNumber,
+                    b.BikeDescription,
+                    b.BookingDate,
+                    b.BookingTime,
+                    b.Status,
+                    b.Total,
+                    b.BikeNumber,
                     UserDetails = new
                     {
-                        booking.User.FullName,
-                        booking.User.Email,
-                        booking.User.PhoneNumber
+                        b.User.FullName,
+                        b.User.Email,
+                        b.User.PhoneNumber
                     },
                     BikeDetails = new
                     {
-                        booking.Bike.BikeName,
-                        booking.Bike.BikeModel,
-                        booking.Bike.BikePrice
+                        b.Bike.BikeName,
+                        b.Bike.BikeModel,
+                        b.Bike.BikePrice
                     }
-                } : null
+                }).ToList()
             };
 
             return Ok(response);
         }
+
+
+
+
+
 
         [HttpGet("assigned")]
         public async Task<IActionResult> GetAssignedMechanics()
         {
             var assignedMechanics = await _context.Mechanics
                 .Where(m => m.IsAssignedTo.HasValue)
-                .Include(m => m.Booking) // Ensure the Booking details are loaded
+                .Include(m => m.Bookings) // Ensure the Booking details are loaded
                     .ThenInclude(b => b.User) // Include the User details
-                .Include(m => m.Booking)
+                .Include(m => m.Bookings)
                     .ThenInclude(b => b.Bike) // Include the Bike details
                 .ToListAsync();
 
@@ -258,40 +271,48 @@ namespace HomeBikeServiceAPI.Controllers
             {
                 return Ok(new { success = true, message = "No assigned mechanics found.", mechanics = assignedMechanics });
             }
+
             var response = assignedMechanics.Select(m => new
             {
                 m.Id,
                 m.Name,
                 m.PhoneNumber,
                 m.IsAssignedTo,
-                BookingDetails = m.Booking != null ? new
+                BookingDetails = m.Bookings.Select(b => new  // Iterate over bookings collection
                 {
-                    m.Booking.Id,
-                    m.Booking.BookingAddress,
-                    m.Booking.BikeChasisNumber,
-                    m.Booking.BikeDescription,
-                    m.Booking.BookingDate,
-                    m.Booking.BookingTime,
-                    m.Booking.Status,
-                    m.Booking.Total,
-                    m.Booking.BikeNumber,
+                    b.Id,
+                    b.BookingAddress,
+                    b.BikeChasisNumber,
+                    b.BikeDescription,
+                    bookingDate = b.BookingDate?.ToString("yyyy-MM-dd"),
+                    bookingTime = b.BookingTime?.ToString(@"hh\:mm\:ss"),
+                    b.Status,
+                    b.Total,
+                    b.BikeNumber,
                     UserDetails = new
                     {
-                        m.Booking.User.FullName,
-                        m.Booking.User.Email,
-                        m.Booking.User.PhoneNumber
+                        b.User.FullName,
+                        b.User.Email,
+                        b.User.PhoneNumber
                     },
                     BikeDetails = new
                     {
-                        m.Booking.Bike.BikeName,
-                        m.Booking.Bike.BikeModel,
-                        m.Booking.Bike.BikePrice
+                        b.Bike.BikeName,
+                        b.Bike.BikeModel,
+                        b.Bike.BikePrice
                     }
-                } : null
+                }).ToList()  // Convert to a list of booking details
             }).ToList();
 
             return Ok(new { success = true, message = "Assigned mechanics retrieved successfully.", mechanics = response });
         }
+
+
+
+
+
+
+
 
 
         [HttpGet("unassigned")]
@@ -431,21 +452,25 @@ namespace HomeBikeServiceAPI.Controllers
             return Ok(response);
         }
 
+
+
+
+
         // GET: api/mechanics/assigned/{userId}
         [HttpGet("assigned/{userId}")]
         public async Task<IActionResult> GetAssignedMechanicById(int userId)
         {
             var mechanic = await _context.Mechanics
                 .Where(m => m.UserId == userId && m.IsAssignedTo.HasValue)
-                .Include(m => m.Booking)
-                    .ThenInclude(b => b.User)
-                .Include(m => m.Booking)
-                    .ThenInclude(b => b.Bike)
+                .Include(m => m.Bookings)
+                    .ThenInclude(b => b.User) // Include User details for each booking
+                .Include(m => m.Bookings)
+                    .ThenInclude(b => b.Bike) // Include Bike details for each booking
                 .FirstOrDefaultAsync();
 
             if (mechanic == null)
             {
-                return NotFound($"Assigned mechanic with ID {userId} not found.");
+                return NotFound($"Assigned mechanic with UserId {userId} not found.");
             }
 
             var response = new
@@ -454,34 +479,35 @@ namespace HomeBikeServiceAPI.Controllers
                 mechanic.Name,
                 mechanic.PhoneNumber,
                 mechanic.IsAssignedTo,
-                BookingDetails = mechanic.Booking != null ? new
+                BookingDetails = mechanic.Bookings != null && mechanic.Bookings.Any() ? mechanic.Bookings.Select(b => new
                 {
-                    mechanic.Booking.Id,
-                    mechanic.Booking.BookingAddress,
-                    mechanic.Booking.BikeChasisNumber,
-                    mechanic.Booking.BikeDescription,
-                    mechanic.Booking.BookingDate,
-                    mechanic.Booking.BookingTime,
-                    mechanic.Booking.Status,
-                    mechanic.Booking.Total,
-                    mechanic.Booking.BikeNumber,
+                    b.Id,
+                    b.BookingAddress,
+                    b.BikeChasisNumber,
+                    b.BikeDescription,
+                    bookingDate = b.BookingDate?.ToString("yyyy-MM-dd"),
+                    bookingTime = b.BookingTime?.ToString(@"hh\:mm\:ss"),
+                    b.Status,
+                    b.Total,
+                    b.BikeNumber,
                     UserDetails = new
                     {
-                        mechanic.Booking.User.FullName,
-                        mechanic.Booking.User.Email,
-                        mechanic.Booking.User.PhoneNumber
+                        b.User.FullName,
+                        b.User.Email,
+                        b.User.PhoneNumber
                     },
                     BikeDetails = new
                     {
-                        mechanic.Booking.Bike.BikeName,
-                        mechanic.Booking.Bike.BikeModel,
-                        mechanic.Booking.Bike.BikePrice
+                        b.Bike.BikeName,
+                        b.Bike.BikeModel,
+                        b.Bike.BikePrice
                     }
-                } : null
+                }).ToList() : null // Handle if no bookings are found
             };
 
             return Ok(response);
         }
+
 
 
         // GET: api/mechanics/unassigned/{id}

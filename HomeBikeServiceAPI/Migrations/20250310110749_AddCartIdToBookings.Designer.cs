@@ -4,6 +4,7 @@ using HomeBikeServiceAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeBikeServiceAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310110749_AddCartIdToBookings")]
+    partial class AddCartIdToBookings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,6 +132,9 @@ namespace HomeBikeServiceAPI.Migrations
                     b.Property<TimeOnly?>("BookingTime")
                         .HasColumnType("time");
 
+                    b.Property<int?>("CartId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("MechanicId")
                         .HasColumnType("int");
 
@@ -146,7 +152,7 @@ namespace HomeBikeServiceAPI.Migrations
 
                     b.HasIndex("BikeId");
 
-                    b.HasIndex("MechanicId");
+                    b.HasIndex("CartId");
 
                     b.HasIndex("UserId");
 
@@ -243,6 +249,10 @@ namespace HomeBikeServiceAPI.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsAssignedTo")
+                        .IsUnique()
+                        .HasFilter("[IsAssignedTo] IS NOT NULL");
 
                     b.HasIndex("UserId");
 
@@ -404,9 +414,9 @@ namespace HomeBikeServiceAPI.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("HomeBikeServiceAPI.Models.Mechanic", "Mechanic")
-                        .WithMany("Bookings")
-                        .HasForeignKey("MechanicId");
+                    b.HasOne("HomeBikeServiceAPI.Models.Cart", "Cart")
+                        .WithMany()
+                        .HasForeignKey("CartId");
 
                     b.HasOne("HomeBikeServiceAPI.Models.User", "User")
                         .WithMany()
@@ -416,7 +426,7 @@ namespace HomeBikeServiceAPI.Migrations
 
                     b.Navigation("Bike");
 
-                    b.Navigation("Mechanic");
+                    b.Navigation("Cart");
 
                     b.Navigation("User");
                 });
@@ -445,16 +455,23 @@ namespace HomeBikeServiceAPI.Migrations
 
             modelBuilder.Entity("HomeBikeServiceAPI.Models.Mechanic", b =>
                 {
+                    b.HasOne("HomeBikeServiceAPI.Models.Booking", "Booking")
+                        .WithOne("Mechanic")
+                        .HasForeignKey("HomeBikeServiceAPI.Models.Mechanic", "IsAssignedTo");
+
                     b.HasOne("HomeBikeServiceAPI.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
+                    b.Navigation("Booking");
+
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("HomeBikeServiceAPI.Models.Mechanic", b =>
+            modelBuilder.Entity("HomeBikeServiceAPI.Models.Booking", b =>
                 {
-                    b.Navigation("Bookings");
+                    b.Navigation("Mechanic")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

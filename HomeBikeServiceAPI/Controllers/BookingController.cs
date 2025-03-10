@@ -151,6 +151,7 @@ namespace HomeBikeServiceAPI.Controllers
                     string.IsNullOrEmpty(updateBookingDto.BookingDate) ||
                     string.IsNullOrEmpty(updateBookingDto.BookingTime) ||
                     updateBookingDto.Total == null ||
+                    updateBookingDto.cartId == null ||
                     string.IsNullOrEmpty(updateBookingDto.BikeNumber) ||
                     string.IsNullOrEmpty(updateBookingDto.BookingAddress) ||
                     updateBookingDto.BookingId == 0)
@@ -248,9 +249,9 @@ namespace HomeBikeServiceAPI.Controllers
             try
             {
                 var bookings = await _context.Bookings
-                    .Include(b => b.User)
-                    .Include(b => b.Bike)  // Include the bike details
-                    .Include(b => b.Mechanic)
+                    .Include(b => b.User)                // Include user details
+                    .Include(b => b.Bike)                // Include bike details
+                    .Include(b => b.Mechanic)            // Explicitly include mechanic data
                     .Select(b => new
                     {
                         b.Id,
@@ -267,15 +268,14 @@ namespace HomeBikeServiceAPI.Controllers
                             b.Bike.BikeName,
                             b.Bike.BikeModel,
                             b.Bike.BikePrice,
-                            ImageUrl = b.Bike.BikeImage 
-                            //ImageUrl = b.Bike.BikeImage != null ? $"{Request.Scheme}://{Request.Host}/BikeProducts/{b.Bike.BikeImage}" : null // Construct image URL
+                            ImageUrl = b.Bike.BikeImage
                         },
                         b.MechanicId,
-                        MechanicDetails = new
+                        MechanicDetails = b.Mechanic != null ? new
                         {
                             b.Mechanic.Name,
                             b.Mechanic.PhoneNumber
-                        },
+                        } : null,  // Ensure mechanic details are not null even for shared mechanic
                         b.BikeChasisNumber,
                         b.BikeDescription,
                         b.BookingDate,
@@ -300,6 +300,9 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error" });
             }
         }
+
+
+
 
         [HttpGet("getall/{userId}")]
         public async Task<IActionResult> GetAllByUserId(int userId)
@@ -334,7 +337,7 @@ namespace HomeBikeServiceAPI.Controllers
                         MechanicDetails = new
                         {
                             b.Mechanic.Name,
-                            b.Mechanic.PhoneNumber
+                            b.Mechanic.PhoneNumber,
                         },
                         b.BikeChasisNumber,
                         b.BikeDescription,
