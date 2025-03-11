@@ -110,9 +110,9 @@ namespace HomeBikeServiceAPI.Controllers
         {
             var mechanic = await _context.Mechanics
                 .Include(m => m.Bookings)
-                .ThenInclude(b => b.User)
+                    .ThenInclude(b => b.User)
                 .Include(m => m.Bookings)
-                .ThenInclude(b => b.Bike)
+                    .ThenInclude(b => b.Bike)
                 .FirstOrDefaultAsync(m => m.UserId == userId);
 
             if (mechanic == null) return NotFound(new { message = "Mechanic not found." });
@@ -138,7 +138,24 @@ namespace HomeBikeServiceAPI.Controllers
                     {
                         fullName = b.User.FullName,
                         email = b.User.Email,
-                        phoneNumber = b.User.PhoneNumber
+                        phoneNumber = b.User.PhoneNumber,
+                        Cart = (b.Status == "pending" || b.Status == "In-Progress") ?
+                            _context.Carts
+                            .Where(c => c.UserId == b.UserId)
+                            .Include(c => c.BikeParts)
+                            .Select(c => new
+                            {
+                                c.Id,
+                                c.BikePartsId,
+                                c.Quantity,
+                                CartDetails = new
+                                {
+                                    c.BikeParts.PartName,
+                                    c.BikeParts.Description,
+                                    c.BikeParts.Price
+                                }
+                            }).ToList()
+                            : null
                     },
                     bikeId = b.BikeId,
                     bikeDetails = b.Bike != null ? new
