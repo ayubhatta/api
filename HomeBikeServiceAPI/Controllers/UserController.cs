@@ -46,7 +46,7 @@ namespace HomeBikeServiceAPI.Controllers
 
         // GET: api/User/{userId}
         // Restricting this endpoint to Admin role
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("{userId}", Name = "GetUserByIdAsync")]
         public async Task<ActionResult<UserResponseDto>> GetUserByIdAsync(int userId)
         {

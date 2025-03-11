@@ -668,6 +668,50 @@ namespace HomeBikeServiceAPI.Controllers
 
 
 
+        [HttpPut("UpdateProfile/{mechanicId}")]
+        public async Task<IActionResult> UpdateMechanicProfile(int mechanicId, [FromBody] UpdateMechanicProfileRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest(new { success = false, message = "Invalid request data." });
+            }
+
+            try
+            {
+                // Fetch the mechanic by the provided mechanicId
+                var mechanic = await _context.Mechanics.FirstOrDefaultAsync(m => m.Id == mechanicId);
+
+                if (mechanic == null)
+                {
+                    return NotFound(new { success = false, message = "Mechanic not found." });
+                }
+
+                // Update fields if provided
+                if (!string.IsNullOrEmpty(request.FullName)) mechanic.Name = request.FullName;
+                if (!string.IsNullOrEmpty(request.PhoneNumber)) mechanic.PhoneNumber = request.PhoneNumber;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Mechanic profile updated successfully.",
+                    mechanic = new
+                    {
+                        id = mechanic.Id,
+                        fullName = mechanic.Name,
+                        phoneNumber = mechanic.PhoneNumber
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating mechanic profile.");
+                return StatusCode(500, new { success = false, message = "Internal server error while updating mechanic profile." });
+            }
+        }
+
+
 
         [HttpDelete("{Id}")]
         public async Task<IActionResult> DeleteMechanic(int Id)
