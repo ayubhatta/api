@@ -473,10 +473,17 @@ namespace HomeBikeServiceAPI.Controllers
                     return NotFound(new { success = false, message = "Booking not found" });
                 }
 
-                var assignedMechanic = await _context.Mechanics.FirstOrDefaultAsync(m => m.IsAssignedTo.Contains(id));
+                // Fetch mechanics with IsAssignedToJson containing the id
+                var mechanics = await _context.Mechanics
+                    .Where(m => m.IsAssignedToJson != null)
+                    .ToListAsync(); // Load all mechanics (since EF cannot query JSON directly)
+
+                var assignedMechanic = mechanics.FirstOrDefault(m =>
+                    m.IsAssignedTo != null && m.IsAssignedTo.Contains(id));
+
                 if (assignedMechanic != null)
                 {
-                    assignedMechanic.IsAssignedTo = null;
+                    assignedMechanic.IsAssignedTo = assignedMechanic.IsAssignedTo.Where(i => i != id).ToList();
                     _context.Mechanics.Update(assignedMechanic);
                 }
 
@@ -491,6 +498,7 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error" });
             }
         }
+
 
 
 

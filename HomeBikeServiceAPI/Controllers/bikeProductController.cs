@@ -397,11 +397,11 @@ namespace HomeBikeServiceAPI.Controllers
 
                 // Delete the associated image
                 //var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "BikeProducts", bike.BikeImage);
-                var imagePath = Path.Combine("Images", "BikeProducts", bike.BikeImage); // Updated path
+                /*var imagePath = Path.Combine("Images", "BikeProducts", bike.BikeImage); // Updated path
                 if (System.IO.File.Exists(imagePath))
                 {
                     System.IO.File.Delete(imagePath);
-                }
+                }*/
 
                 _context.BikeProducts.Remove(bike);
                 await _context.SaveChangesAsync();
