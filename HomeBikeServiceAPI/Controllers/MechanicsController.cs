@@ -115,54 +115,72 @@ namespace HomeBikeServiceAPI.Controllers
                     .ThenInclude(b => b.Bike)
                 .FirstOrDefaultAsync(m => m.UserId == userId);
 
-            if (mechanic == null) return NotFound(new { message = "Mechanic not found." });
+            if (mechanic == null)
+            {
+                return NotFound(new { success = false, message = "Mechanic not found." });
+            }
+
+            // Deserialize assigned bookings
+            var assignedBookings = string.IsNullOrEmpty(mechanic.IsAssignedToJson)
+                ? new List<int>()
+                : JsonSerializer.Deserialize<List<int>>(mechanic.IsAssignedToJson);
+
+            // Fetch carts for users with pending or in-progress bookings (to reduce queries in loop)
+            var userIds = mechanic.Bookings
+                .Where(b => b.Status == "pending" || b.Status == "In-Progress")
+                .Select(b => b.UserId)
+                .Distinct()
+                .ToList();
+
+            var carts = _context.Carts
+                .Where(c => userIds.Contains(c.UserId))
+                .Include(c => c.BikeParts)
+                .ToList();
 
             var response = new
             {
-                mechanicId = mechanic.Id,
-                fullName = mechanic.Name,
-                isAssignedTo = string.IsNullOrEmpty(mechanic.IsAssignedToJson) ? new List<int>() : JsonSerializer.Deserialize<List<int>>(mechanic.IsAssignedToJson),
-                bookingDetails = mechanic.Bookings.Select(b => new
+                mechanic.Id,
+                mechanic.Name,
+                mechanic.PhoneNumber,
+                IsAssignedTo = assignedBookings,
+                BookingDetails = mechanic.Bookings.Select(b => new
                 {
-                    id = b.Id,
-                    bookingAddress = b.BookingAddress,
-                    bikeChasisNumber = b.BikeChasisNumber,
-                    bikeDescription = b.BikeDescription,
+                    b.Id,
+                    b.BookingAddress,
+                    b.BikeChasisNumber,
+                    b.BikeDescription,
                     bookingDate = b.BookingDate?.ToString("yyyy-MM-dd"),
                     bookingTime = b.BookingTime?.ToString(@"hh\:mm\:ss"),
-                    status = b.Status,
-                    total = b.Total,
-                    bikeNumber = b.BikeNumber,
-                    userId = b.UserId,
-                    userDetails = new
+                    b.Status,
+                    b.Total,
+                    b.BikeNumber,
+                    UserDetails = new
                     {
-                        fullName = b.User.FullName,
-                        email = b.User.Email,
-                        phoneNumber = b.User.PhoneNumber,
-                        Cart = (b.Status == "pending" || b.Status == "In-Progress") ?
-                            _context.Carts
-                            .Where(c => c.UserId == b.UserId)
-                            .Include(c => c.BikeParts)
-                            .Select(c => new
-                            {
-                                c.Id,
-                                c.BikePartsId,
-                                c.Quantity,
-                                CartDetails = new
+                        userId = b.UserId,
+                        b.User.FullName,
+                        b.User.Email,
+                        b.User.PhoneNumber,
+                        Cart = (b.Status == "pending" || b.Status == "In-Progress")
+                            ? carts.Where(c => c.UserId == b.UserId)
+                                .Select(c => new
                                 {
-                                    c.BikeParts.PartName,
-                                    c.BikeParts.Description,
-                                    c.BikeParts.Price
-                                }
-                            }).ToList()
+                                    c.Id,
+                                    c.BikePartsId,
+                                    c.Quantity,
+                                    CartDetails = new
+                                    {
+                                        c.BikeParts.PartName,
+                                        c.BikeParts.Description,
+                                        c.BikeParts.Price
+                                    }
+                                }).ToList()
                             : null
                     },
-                    bikeId = b.BikeId,
-                    bikeDetails = b.Bike != null ? new
+                    BikeDetails = b.Bike != null ? new
                     {
-                        bikeName = b.Bike.BikeName,
-                        bikeModel = b.Bike.BikeModel,
-                        bikePrice = b.Bike.BikePrice
+                        b.Bike.BikeName,
+                        b.Bike.BikeModel,
+                        b.Bike.BikePrice
                     } : null
                 }).ToList()
             };
@@ -174,7 +192,6 @@ namespace HomeBikeServiceAPI.Controllers
                 data = response
             });
         }
-
 
 
 
