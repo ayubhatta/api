@@ -581,7 +581,8 @@ namespace HomeBikeServiceAPI.Controllers
                         b.User.FullName,
                         b.User.Email,
                         b.User.PhoneNumber,
-                        Cart = _context.Carts
+                        Cart =(b.Status == "pending" || b.Status == "In-Progress")?
+                            _context.Carts
                             .Where(c => c.UserId == b.UserId)
                             .Include(c => c.BikeParts)
                             .Select(c => new
@@ -596,6 +597,7 @@ namespace HomeBikeServiceAPI.Controllers
                                     c.BikeParts.Price
                                 }
                             }).ToList()
+                            : null
                     },
                     BikeDetails = new
                     {
