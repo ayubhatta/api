@@ -589,7 +589,11 @@ namespace HomeBikeServiceAPI.Controllers
             // Check if mechanic is found and if they are assigned to any bookings
             if (mechanic == null || mechanic.IsAssignedTo == null || !mechanic.IsAssignedTo.Any())
             {
-                return NotFound($"Assigned mechanic with UserId {userId} not found.");
+                return Ok(new
+                { 
+                    success = false, 
+                    message = $"Assigned mechanic with UserId {userId} not found." 
+                });
             }
 
             var response = new
@@ -657,7 +661,11 @@ namespace HomeBikeServiceAPI.Controllers
             // Check if mechanic is found and if they are unassigned
             if (mechanic == null || mechanic.IsAssignedTo != null && mechanic.IsAssignedTo.Any())
             {
-                return NotFound($"Unassigned mechanic with UserId {userId} not found.");
+                return Ok(new
+                { 
+                    success = false,
+                    message = $"Unassigned mechanic with UserId {userId} not found." 
+                });
             }
 
             return Ok(mechanic);
