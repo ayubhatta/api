@@ -78,7 +78,7 @@ namespace HomeBikeServiceAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<List<UserResponseDto>>> GetAllUsersAsync()
         {
@@ -315,35 +315,7 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-        [Authorize]
-        // POST: api/User/forgot-password
-        [HttpPost("forgot-password")]
-        public async Task<ActionResult> ForgotPasswordAsync(ForgotPasswordRequest request)
-        {
-            try
-            {
-                var user = await _userRepository.GetUserByPhoneAsync(request.Phone);
-                if (user == null)
-                {
-                    return NotFound(new { message = $"User with phone {request.Phone} not found" });
-                }
-
-                var otp = GenerateOtp();
-                user.ResetPasswordOTP = otp;
-                user.ResetPasswordOTPExpiry = DateTime.Now.AddMinutes(2);
-                await _userRepository.UpdateUserAsync(user);
-
-                // Send OTP to the user's phone or email here
-                return Ok(new { message = "OTP sent to your phone" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while sending OTP.");
-                return StatusCode(500, new { message = "Internal server error while sending OTP." });
-            }
-        }
-
-
+        
         [HttpPut("UpdateUserRoleToMechanic/{id}")]
         public async Task<IActionResult> UpdateUserRoleToMechanic(int id)
         {
@@ -391,6 +363,103 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
+        [HttpPost("ChangePassword/{userId}")]
+        public async Task<IActionResult> ChangePassword(int userId, [FromBody] ChangePasswordRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.OldPassword) || string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                return BadRequest(new { success = false, message = "Invalid request data." });
+            }
+
+            try
+            {
+                // Fetch the user by the provided userId (directly from the URL)
+                var user = await _context.Users.FindAsync(userId);
+
+                if (user == null)
+                {
+                    return NotFound(new { success = false, message = "User not found." });
+                }
+
+                // Verify old password
+                if (!VerifyPassword(user.Password, request.OldPassword))
+                {
+                    return Unauthorized(new { success = false, message = "Incorrect old password." });
+                }
+
+                // Hash the new password and update it
+                user.Password = HashPassword(request.NewPassword);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "Password changed successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while changing password.");
+                return StatusCode(500, new { success = false, message = "Internal server error while changing password." });
+            }
+        }
+
+
+
+        [HttpPut("UpdateProfile/{userId}")]
+        public async Task<IActionResult> UpdateProfile(int userId, [FromBody] UpdateProfileRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest(new { success = false, message = "Invalid request data." });
+            }
+
+            try
+            {
+                // Fetch the user by the provided userId (directly from the URL)
+                var user = await _context.Users.FindAsync(userId);
+
+                if (user == null)
+                {
+                    return NotFound(new { success = false, message = "User not found." });
+                }
+
+                // Check if the new email is already taken by another user
+                if (!string.IsNullOrEmpty(request.Email) && request.Email != user.Email)
+                {
+                    var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+                    if (existingUser != null)
+                    {
+                        return Conflict(new { success = false, message = "Email is already in use." });
+                    }
+                }
+
+                // Update fields if provided
+                if (!string.IsNullOrEmpty(request.FullName)) user.FullName = request.FullName;
+                if (!string.IsNullOrEmpty(request.Email)) user.Email = request.Email;
+                if (!string.IsNullOrEmpty(request.PhoneNumber)) user.PhoneNumber = request.PhoneNumber;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Profile updated successfully.",
+                    user = new
+                    {
+                        id = user.Id,
+                        fullName = user.FullName,
+                        phoneNumber = user.PhoneNumber,
+                        email = user.Email
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating profile.");
+                return StatusCode(500, new { success = false, message = "Internal server error while updating profile." });
+            }
+        }
+
+
+
+
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUser(int userId)
         {
@@ -433,38 +502,6 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-
-
-
-        [Authorize]
-        // POST: api/User/reset-password
-        [HttpPost("reset-password")]
-        public async Task<ActionResult> ResetPasswordAsync(ResetPasswordRequest request)
-        {
-            try
-            {
-                var user = await _userRepository.GetUserByPhoneAsync(request.Phone);
-                if (user == null || user.ResetPasswordOTP != request.Otp || user.ResetPasswordOTPExpiry < DateTime.Now)
-                {
-                    return BadRequest(new { message = "Invalid OTP or OTP expired" });
-                }
-
-                user.Password = request.NewPassword;
-                user.ResetPasswordOTP = null;
-                user.ResetPasswordOTPExpiry = null;
-                await _userRepository.UpdateUserAsync(user);
-
-                return Ok(new { message = "Password reset successful" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while resetting the password.");
-                return StatusCode(500, new { message = "Internal server error while resetting password." });
-            }
-        }
-
-
-
         [HttpDelete("delete-all")]
         public async Task<IActionResult> DeleteAllUsers()
         {
@@ -481,14 +518,35 @@ namespace HomeBikeServiceAPI.Controllers
             return Ok(new { success = true, message = "All users have been deleted successfully." });
         }
 
-
-
-
-        // Helper method to generate OTP
-        private string GenerateOtp()
+        private string HashPassword(string password)
         {
-            Random random = new Random();
-            return random.Next(100000, 999999).ToString();
+            try
+            {
+                byte[] salt = new byte[16];
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(salt);
+                }
+
+                // Hash the password with the salt
+                byte[] hash = KeyDerivation.Pbkdf2(
+                    password: password,
+                    salt: salt,
+                    prf: KeyDerivationPrf.HMACSHA256,
+                    iterationCount: 10000,
+                    numBytesRequested: 256 / 8);
+
+                // Combine salt and hash into a single string
+                string saltBase64 = Convert.ToBase64String(salt);
+                string hashBase64 = Convert.ToBase64String(hash);
+
+                return $"{saltBase64}:{hashBase64}";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while hashing the password.");
+                throw new InvalidOperationException("Error while hashing the password.");
+            }
         }
     }
 }
