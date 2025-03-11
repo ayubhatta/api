@@ -185,12 +185,7 @@ namespace HomeBikeServiceAPI.Controllers
                 }).ToList()
             };
 
-            return Ok(new
-            {
-                success = true,
-                message = "Mechanic details retrieved successfully.",
-                data = response
-            });
+            return Ok(response);
         }
 
 
