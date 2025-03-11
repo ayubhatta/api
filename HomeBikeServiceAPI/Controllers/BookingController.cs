@@ -38,7 +38,7 @@ namespace HomeBikeServiceAPI.Controllers
             try
             {
                 // Check if all required fields are provided
-                if (string.IsNullOrEmpty(bookingDto.BikeChasisNumber) ||
+                if (
                     string.IsNullOrEmpty(bookingDto.BikeDescription) ||
                     string.IsNullOrEmpty(bookingDto.BookingDate) ||
                     string.IsNullOrEmpty(bookingDto.BookingTime) ||
@@ -116,7 +116,6 @@ namespace HomeBikeServiceAPI.Controllers
                 var bookingItem = new Booking
                 {
                     BikeId = bookingDto.BikeId,
-                    BikeChasisNumber = bookingDto.BikeChasisNumber,
                     BikeDescription = bookingDto.BikeDescription,
                     BookingDate = bookingDate,
                     BookingTime = bookingTime,
@@ -153,7 +152,7 @@ namespace HomeBikeServiceAPI.Controllers
             try
             {
                 // Check if all required fields are provided
-                if (string.IsNullOrEmpty(updateBookingDto.BikeChasisNumber) ||
+                if (
                     string.IsNullOrEmpty(updateBookingDto.BikeDescription) ||
                     string.IsNullOrEmpty(updateBookingDto.BookingDate) ||
                     string.IsNullOrEmpty(updateBookingDto.BookingTime) ||
@@ -226,7 +225,6 @@ namespace HomeBikeServiceAPI.Controllers
                     return Ok(new { success = false, message = "Bike already booked for this time." });
                 }
 
-                existingBooking.BikeChasisNumber = updateBookingDto.BikeChasisNumber;
                 existingBooking.BikeDescription = updateBookingDto.BikeDescription;
                 existingBooking.BookingDate = bookingDate;
                 existingBooking.BookingTime = bookingTime;
@@ -283,7 +281,6 @@ namespace HomeBikeServiceAPI.Controllers
                             b.Mechanic.Name,
                             b.Mechanic.PhoneNumber
                         } : null,  // Ensure mechanic details are not null even for shared mechanic
-                        b.BikeChasisNumber,
                         b.BikeDescription,
                         b.BookingDate,
                         b.BookingTime,
@@ -346,7 +343,6 @@ namespace HomeBikeServiceAPI.Controllers
                             b.Mechanic.Name,
                             b.Mechanic.PhoneNumber,
                         },
-                        b.BikeChasisNumber,
                         b.BikeDescription,
                         b.BookingDate,
                         b.BookingTime,
@@ -392,7 +388,6 @@ namespace HomeBikeServiceAPI.Controllers
                             b.User.PhoneNumber
                         },
                         b.BikeId,
-                        b.BikeChasisNumber,
                         b.BikeDescription,
                         b.BookingDate,
                         b.BookingTime,
@@ -436,7 +431,6 @@ namespace HomeBikeServiceAPI.Controllers
                             b.User.PhoneNumber
                         },
                         b.BikeId,
-                        b.BikeChasisNumber,
                         b.BikeDescription,
                         b.BookingDate,
                         b.BookingTime,
@@ -568,7 +562,7 @@ namespace HomeBikeServiceAPI.Controllers
 
                 if (!bookings.Any())
                 {
-                    return NotFound(new { message = "No bookings found to delete." });
+                    return Ok(new { message = "No bookings found to delete." });
                 }
 
                 // Remove all bookings

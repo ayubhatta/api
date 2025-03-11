@@ -25,9 +25,6 @@ namespace HomeBikeServiceAPI.Models
         [MaxLength(255)] 
         public string BookingAddress { get; set; } 
 
-        [MaxLength(50)] 
-        public string BikeChasisNumber { get; set; } 
-
         [MaxLength(1000)] 
         public string BikeDescription { get; set; } 
 

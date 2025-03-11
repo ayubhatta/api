@@ -2,7 +2,6 @@
 {
     public int UserId { get; set; }
     public int BikeId { get; set; }
-    public string BikeChasisNumber { get; set; }
     public string BikeDescription { get; set; }
     public string BookingDate { get; set; }
     public string BookingTime { get; set; }
@@ -17,7 +16,6 @@ public class BookingGetDto
     public int Id { get; set; }
     public int UserId { get; set; }
     public int BikeId { get; set; }
-    public string BikeChasisNumber { get; set; }
     public string BikeDescription { get; set; }
     public DateOnly? BookingDate { get; set; }
     public TimeOnly? BookingTime { get; set; }

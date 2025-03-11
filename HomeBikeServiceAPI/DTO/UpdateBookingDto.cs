@@ -4,7 +4,6 @@
     public int UserId { get; set; }
     public int cartId { get; set; }
     public int BikeId { get; set; }
-    public string BikeChasisNumber { get; set; }
     public string BikeDescription { get; set; }
     public string BookingDate { get; set; }
     public string BookingTime { get; set; }

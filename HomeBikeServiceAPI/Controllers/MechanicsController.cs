@@ -63,7 +63,6 @@ namespace HomeBikeServiceAPI.Controllers
                     {
                         id = b.Id,
                         bookingAddress = b.BookingAddress,
-                        bikeChasisNumber = b.BikeChasisNumber,
                         bikeDescription = b.BikeDescription,
                         bookingDate = b.BookingDate?.ToString("yyyy-MM-dd"),
                         bookingTime = b.BookingTime?.ToString(@"hh\:mm\:ss"),
@@ -147,7 +146,6 @@ namespace HomeBikeServiceAPI.Controllers
                 {
                     b.Id,
                     b.BookingAddress,
-                    b.BikeChasisNumber,
                     b.BikeDescription,
                     bookingDate = b.BookingDate?.ToString("yyyy-MM-dd"),
                     bookingTime = b.BookingTime?.ToString(@"hh\:mm\:ss"),
@@ -281,7 +279,6 @@ namespace HomeBikeServiceAPI.Controllers
                 {
                     b.Id,
                     b.BookingAddress,
-                    b.BikeChasisNumber,
                     b.BikeDescription,
                     b.BookingDate,
                     b.BookingTime,
@@ -339,7 +336,6 @@ namespace HomeBikeServiceAPI.Controllers
                 {
                     b.Id,
                     b.BookingAddress,
-                    b.BikeChasisNumber,
                     b.BikeDescription,
                     bookingDate = b.BookingDate?.ToString("yyyy-MM-dd"),
                     bookingTime = b.BookingTime?.ToString(@"hh\:mm\:ss"),
@@ -429,7 +425,6 @@ namespace HomeBikeServiceAPI.Controllers
                 {
                     booking.Id,
                     booking.BookingAddress,
-                    booking.BikeChasisNumber,
                     booking.BikeDescription,
                     booking.BookingDate,
                     booking.BookingTime,
@@ -543,7 +538,6 @@ namespace HomeBikeServiceAPI.Controllers
                 {
                     booking.Id,
                     booking.BookingAddress,
-                    booking.BikeChasisNumber,
                     booking.BikeDescription,
                     booking.BookingDate,
                     booking.BookingTime,
@@ -601,7 +595,6 @@ namespace HomeBikeServiceAPI.Controllers
                 {
                     b.Id,
                     b.BookingAddress,
-                    b.BikeChasisNumber,
                     b.BikeDescription,
                     bookingDate = b.BookingDate?.ToString("yyyy-MM-dd"),
                     bookingTime = b.BookingTime?.ToString(@"hh\:mm\:ss"),
