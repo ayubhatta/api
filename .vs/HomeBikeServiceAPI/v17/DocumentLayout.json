@@ -142,8 +142,7 @@
               "RelativeToolTip": "HomeBikeServiceAPI\\Services\\CartService.cs",
               "ViewState": "AQIAAM4AAAAAAAAAAAAewOIAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-18T09:25:13.863Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-18T09:25:13.863Z"
             },
             {
               "$type": "Document",
@@ -237,7 +236,7 @@
               "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Controllers\\CartController.cs",
               "ToolTip": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Controllers\\CartController.cs",
               "RelativeToolTip": "HomeBikeServiceAPI\\Controllers\\CartController.cs",
-              "ViewState": "AQIAAFoBAAAAAAAAAAAmwIIBAAAAAAAA",
+              "ViewState": "AQIAAP0AAAAAAAAAAAAYwCQBAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-13T05:36:26.645Z",
               "EditorCaption": ""
@@ -433,8 +432,7 @@
               "RelativeToolTip": "HomeBikeServiceAPI\\Models\\BikeParts.cs",
               "ViewState": "AQIAABAAAAAAAAAAAAAIwC8AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-12T12:26:11.374Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-12T12:26:11.374Z"
             }
           ]
         }
