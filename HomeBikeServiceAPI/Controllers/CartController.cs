@@ -325,6 +325,47 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
+
+        [HttpPut("pay/{cartId}")]
+        public async Task<IActionResult> MarkAsPaid(int cartId)
+        {
+            int userId = GetUserIdFromToken();
+            if (userId == 0) return Unauthorized("User not identified.");
+
+            // Fetch the cart items for the user
+            var cartItems = await _cartService.GetCartItemsByUser(userId);
+            var existingCart = cartItems.FirstOrDefault(c => c.Id == cartId);
+
+            // If the cart item doesn't exist or does not belong to this user
+            if (existingCart == null)
+            {
+                return NotFound(new { success = false, message = "Cart item not found or does not belong to this user." });
+            }
+
+            // Update the IsPaymentDone field to true
+            existingCart.IsPaymentDone = true;
+
+            // Save the changes
+            try
+            {
+                var result = await _cartService.UpdateCartItem(existingCart);
+                if (result)
+                {
+                    return Ok(new { success = true, message = "Payment status updated successfully." });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "Failed to update payment status." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"Internal server error: {ex.Message}" });
+            }
+        }
+
+
+
         // Get cart by user ID
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetCartsByUserId(int userId)

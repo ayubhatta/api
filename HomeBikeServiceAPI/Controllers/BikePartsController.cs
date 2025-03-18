@@ -153,14 +153,6 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-
-
-
-
-
-
-
-
         private string GetImageUrl(string fileName)
         {
             return string.IsNullOrEmpty(fileName) ? null : $"{Request.Scheme}://{Request.Host}/Images/BikeParts/{fileName}";
@@ -179,14 +171,13 @@ namespace HomeBikeServiceAPI.Controllers
 
             try
             {
-                // Manually deserialize CompatibleBikesJson from the form data
-                Dictionary<string, List<string>> compatibleBikes =
-                    string.IsNullOrEmpty(bikePart.CompatibleBikesJson)
-                    ? new Dictionary<string, List<string>>()
-                    : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(bikePart.CompatibleBikesJson);
+                // Deserialize the JSON string (CompatibleBikesJson) into a Dictionary
+                Dictionary<string, List<string>> compatibleBikes = new Dictionary<string, List<string>>();
 
-                // Serialize the CompatibleBikesJson dictionary to a JSON string for storing in the database
-                string serializedCompatibleBikesJson = System.Text.Json.JsonSerializer.Serialize(compatibleBikes);
+                if (!string.IsNullOrEmpty(bikePart.CompatibleBikesJson))
+                {
+                    compatibleBikes = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(bikePart.CompatibleBikesJson);
+                }
 
                 // Resize image
                 var resizedImageBytes = await ResizeImage(bikePart.PartImage);
@@ -209,7 +200,7 @@ namespace HomeBikeServiceAPI.Controllers
                     Description = bikePart.Description,
                     Quantity = bikePart.Quantity,
                     PartImage = imgbbUrl, // Store ImgBB URL
-                    CompatibleBikesJson = serializedCompatibleBikesJson, // Store the serialized JSON string in the database
+                    CompatibleBikesJson = bikePart.CompatibleBikesJson, // Store as string
                 };
 
                 // Save to database
@@ -232,7 +223,7 @@ namespace HomeBikeServiceAPI.Controllers
                         newBikePart.Description,
                         newBikePart.Quantity,
                         PartImageUrl = newBikePart.PartImage,
-                        CompatibleBikesJson = newBikePart.CompatibleBikesJson // Return the serialized JSON
+                        CompatibleBikesJson = newBikePart.CompatibleBikesJson, // Return the JSON
                     }
                 });
             }
@@ -442,7 +433,7 @@ namespace HomeBikeServiceAPI.Controllers
 
         // Update a Bike Part with Image Upload
         //[Authorize(Roles = "Admin")]
-        /*[HttpPut("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromForm] BikePartCreateRequest updateRequest)
         {
             try
@@ -474,15 +465,19 @@ namespace HomeBikeServiceAPI.Controllers
                 if (updateRequest.PartImage != null)
                 {
                     var resizedImageBytes = await ResizeImage(updateRequest.PartImage);
-                    var base64Image = Convert.ToBase64String(resizedImageBytes);
 
+                    // Convert image to Base64 (optional, depending on use case)
+                    string base64Image = Convert.ToBase64String(resizedImageBytes);
+
+                    // Upload to ImgBB
                     var imgbbUrl = await UploadToImgBB(updateRequest.PartImage);
                     if (imgbbUrl == null)
                     {
                         return StatusCode(500, new { success = false, message = "Failed to upload image to ImgBB." });
                     }
 
-                    existingPart.PartImage = imgbbUrl; // Update image URL
+                    // Update image URL
+                    existingPart.PartImage = imgbbUrl;
                 }
 
                 // Save the updated bike part to the database
@@ -514,7 +509,8 @@ namespace HomeBikeServiceAPI.Controllers
                 _logger.LogError(ex, "Error updating BikePart.");
                 return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
             }
-        }*/
+        }
+
 
 
         // Delete a Bike Part
