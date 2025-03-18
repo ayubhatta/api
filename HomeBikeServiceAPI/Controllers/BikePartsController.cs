@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
@@ -143,7 +145,7 @@ namespace HomeBikeServiceAPI.Controllers
                     return null;
                 }
             }
-            catch (JsonException ex)
+            catch (System.Text.Json.JsonException ex)
             {
                 _logger.LogError($"Failed to parse ImgBB response: {ex.Message}");
                 return null;
@@ -166,35 +168,40 @@ namespace HomeBikeServiceAPI.Controllers
 
 
 
-
-        // Create a Bike Part with Image Upload
-        //[Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromForm] BikePartCreateRequest bikePart)
         {
             if (bikePart == null || bikePart.PartImage == null)
             {
+                _logger.LogWarning("Bike part data or image is missing.");
                 return BadRequest(new { success = false, message = "Bike part data and image are required." });
             }
 
             try
             {
-                // Resize image before Base64 conversion
+                // Manually deserialize CompatibleBikesJson from the form data
+                Dictionary<string, List<string>> compatibleBikes =
+                    string.IsNullOrEmpty(bikePart.CompatibleBikesJson)
+                    ? new Dictionary<string, List<string>>()
+                    : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(bikePart.CompatibleBikesJson);
+
+                // Serialize the CompatibleBikesJson dictionary to a JSON string for storing in the database
+                string serializedCompatibleBikesJson = System.Text.Json.JsonSerializer.Serialize(compatibleBikes);
+
+                // Resize image
                 var resizedImageBytes = await ResizeImage(bikePart.PartImage);
 
-                // Convert the resized image to Base64
+                // Convert image to Base64
                 string base64Image = Convert.ToBase64String(resizedImageBytes);
-                _logger.LogInformation("Base64 Image Length: {Length} bytes", base64Image.Length);
 
                 // Upload to ImgBB
                 var imgbbUrl = await UploadToImgBB(bikePart.PartImage);
                 if (string.IsNullOrEmpty(imgbbUrl))
                 {
-                    _logger.LogError("Failed to upload image to ImgBB. Image size: {Size} bytes", bikePart.PartImage.Length);
                     return StatusCode(500, new { success = false, message = "Failed to upload image to ImgBB." });
                 }
 
-                // Create BikePart object
+                // Create BikeParts object
                 var newBikePart = new BikeParts
                 {
                     PartName = bikePart.PartName,
@@ -202,13 +209,14 @@ namespace HomeBikeServiceAPI.Controllers
                     Description = bikePart.Description,
                     Quantity = bikePart.Quantity,
                     PartImage = imgbbUrl, // Store ImgBB URL
-                    CompatibleBikes = bikePart.CompatibleBikes ?? new List<string>()
+                    CompatibleBikesJson = serializedCompatibleBikesJson, // Store the serialized JSON string in the database
                 };
 
+                // Save to database
                 var result = await _bikePartsService.CreateBikePart(newBikePart);
+
                 if (!result)
                 {
-                    _logger.LogError("Failed to save BikePart to the database: {@BikePart}", newBikePart);
                     return BadRequest(new { success = false, message = "Failed to create bike part." });
                 }
 
@@ -224,68 +232,168 @@ namespace HomeBikeServiceAPI.Controllers
                         newBikePart.Description,
                         newBikePart.Quantity,
                         PartImageUrl = newBikePart.PartImage,
-                        newBikePart.CompatibleBikes
+                        CompatibleBikesJson = newBikePart.CompatibleBikesJson // Return the serialized JSON
                     }
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while creating BikePart.");
+                _logger.LogError(ex, "Error while creating BikePart. Exception: {ExceptionMessage}", ex.Message);
                 return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
             }
         }
 
+
+
+
+
+        /*
+                [HttpGet]
+                public async Task<IActionResult> GetAllBikeParts()
+                {
+                    try
+                    {
+                        // Get all bike parts from the service
+                        var bikeParts = await _bikePartsService.GetAllBikeParts();
+
+                        // Group by CompatibleBikesJson (which is a dictionary in JSON format)
+                        var groupedParts = bikeParts
+                            .GroupBy(bp => bp.CompatibleBikesJson)  // Group parts by the CompatibleBikesJson
+                            .Select(group =>
+                            {
+                                // Deserialize CompatibleBikesJson to a dictionary
+                                var compatibleBikes = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(group.Key);
+
+                                // Extract brand names (keys from the dictionary)
+                                var bikeBrands = compatibleBikes.Keys.ToList();
+
+                                return new
+                                {
+                                    // Bike brand (we use the first key as the brand)
+                                    bikeBrand = bikeBrands.First(),
+                                    bikeModels = bikeBrands
+                                        .Select(brand => new
+                                        {
+                                            bikeModel = brand,  // Brand name (use the key as the bike model)
+                                            parts = group
+                                                .Where(bp => bp.CompatibleBikesJson.Contains(brand))  // Filter parts for that model
+                                                .GroupBy(bp => bp.Id)  // Group parts by ID to avoid duplication
+                                                .Select(partGroup => new
+                                                {
+                                                    part = partGroup.First(),
+                                                    parts = partGroup.Select(bp => new
+                                                    {
+                                                        bp.Id,
+                                                        bp.PartName,
+                                                        bp.Price,
+                                                        bp.Description,
+                                                        bp.Quantity,
+                                                        CompatibleBikes = bp.CompatibleBikes,  // Include CompatibleBikes dictionary
+                                                        partImageUrl = bp.PartImage  // Return the image URL for the part
+                                                    }).ToList()
+                                                }).ToList()
+                                        }).ToList()
+                                };
+                            })
+                            .ToList();
+
+                        return Ok(new { success = true, message = "Bike parts grouped by brand and model.", data = groupedParts });
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(new { success = false, message = ex.Message });
+                    }
+                }*/
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public IActionResult GetGroupedBikeParts()
         {
-            try
+            var bikeParts = _context.BikeParts.ToList(); // Get all bike parts from the database
+            var groupedParts = new List<object>(); // To hold the grouped data
+
+            // Group parts by the brand (keys of CompatibleBikesJson)
+            var bikeBrands = new Dictionary<string, object>();
+
+            foreach (var part in bikeParts)
             {
-                var bikeParts = await _bikePartsService.GetAllBikeParts();
+                // Deserialize the CompatibleBikesJson into a dictionary
+                var compatibleBikes = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(part.CompatibleBikesJson);
 
-                if (bikeParts == null || !bikeParts.Any())
+                foreach (var brand in compatibleBikes.Keys)
                 {
-                    return NotFound(new { success = false, message = "No bike parts found." });
-                }
-
-                var groupedBikeParts = bikeParts
-                    .Where(bp => bp.CompatibleBikes != null && bp.CompatibleBikes.Any()) // Ensure no null errors
-                    .SelectMany(bp => bp.CompatibleBikes.Select(bike => new { bike, Part = bp }))
-                    .GroupBy(x => x.bike)
-                    .Select(group => new
+                    // If the brand is not in the list, add it
+                    if (!bikeBrands.ContainsKey(brand))
                     {
-                        BikeName = group.Key,
-                        // Await image URL before constructing the response
-                        Parts = group.Select(async x => new
+                        bikeBrands[brand] = new List<object>();
+                    }
+
+                    var brandModels = (List<object>)bikeBrands[brand];
+
+                    // Process each model for the brand
+                    foreach (var model in compatibleBikes[brand])
+                    {
+                        var existingModel = brandModels.FirstOrDefault(m => ((dynamic)m).bikeModel == model);
+                        if (existingModel == null)
                         {
-                            x.Part.Id,
-                            x.Part.PartName,
-                            x.Part.Price,
-                            x.Part.Description,
-                            x.Part.Quantity,
-                            x.Part.CompatibleBikes,
-                            PartImageUrl = await GetImgBBUrlAsync(x.Part.PartImage) // Dynamically fetch ImgBB URL if required
-                        }).ToList()
-                    })
-                    .ToList();
-
-                // Wait for all asynchronous operations to complete
-                var finalGroupedBikeParts = new List<object>();
-                foreach (var group in groupedBikeParts)
-                {
-                    var parts = await Task.WhenAll(group.Parts); // Ensure all async tasks are awaited
-                    finalGroupedBikeParts.Add(new { group.BikeName, Parts = parts });
+                            // If model doesn't exist, create it and add it
+                            var newModel = new
+                            {
+                                bikeModel = model,
+                                parts = new List<object>
+                        {
+                            new
+                            {
+                                id = part.Id,
+                                partName = part.PartName,
+                                price = part.Price,
+                                description = part.Description,
+                                quantity = part.Quantity,
+                                compatibleBikes = compatibleBikes,
+                                partImageUrl = part.PartImage
+                            }
+                        }
+                            };
+                            brandModels.Add(newModel);
+                        }
+                        else
+                        {
+                            // If model exists, just add the part
+                            var partsList = (List<object>)((dynamic)existingModel).parts;
+                            partsList.Add(new
+                            {
+                                id = part.Id,
+                                partName = part.PartName,
+                                price = part.Price,
+                                description = part.Description,
+                                quantity = part.Quantity,
+                                compatibleBikes = compatibleBikes,
+                                partImageUrl = part.PartImage
+                            });
+                        }
+                    }
                 }
+            }
 
-                return Ok(new { success = true, message = "Bike parts grouped by bike name.", data = finalGroupedBikeParts });
-            }
-            catch (Exception ex)
+            // Convert the dictionary into the final structure
+            foreach (var brand in bikeBrands.Keys)
             {
-                _logger.LogError(ex, "Error retrieving bike parts.");
-                return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
+                groupedParts.Add(new
+                {
+                    bikeBrand = brand,
+                    bikeModels = bikeBrands[brand]
+                });
             }
+
+            // Return the final result
+            return Ok(new
+            {
+                success = true,
+                message = "Bike parts grouped by brand and model.",
+                data = groupedParts
+            });
         }
+
 
 
 
@@ -334,25 +442,35 @@ namespace HomeBikeServiceAPI.Controllers
 
         // Update a Bike Part with Image Upload
         //[Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]
+        /*[HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromForm] BikePartCreateRequest updateRequest)
         {
             try
             {
+                // Fetch the existing bike part from the database
                 var existingPart = await _bikePartsService.GetBikePartById(id);
                 if (existingPart == null)
                 {
                     return NotFound(new { success = false, message = $"Bike part with ID {id} not found." });
                 }
 
-                // Update fields
+                // Update the fields
                 existingPart.PartName = updateRequest.PartName;
                 existingPart.Price = updateRequest.Price;
                 existingPart.Description = updateRequest.Description;
                 existingPart.Quantity = updateRequest.Quantity;
-                existingPart.CompatibleBikes = updateRequest.CompatibleBikes ?? new List<string>();
 
-                // Handle image update
+                // Handle the update of CompatibleBikesJson field (deserialize and update)
+                if (!string.IsNullOrEmpty(updateRequest.CompatibleBikesJson))
+                {
+                    // Deserialize the JSON string (CompatibleBikesJson) into a Dictionary
+                    var compatibleBikes = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(updateRequest.CompatibleBikesJson);
+
+                    // Serialize the object back to a compact JSON string (removing spaces and line breaks)
+                    existingPart.CompatibleBikesJson = System.Text.Json.JsonSerializer.Serialize(compatibleBikes, new JsonSerializerOptions { WriteIndented = false });
+                }
+
+                // Handle image update if a new image is provided
                 if (updateRequest.PartImage != null)
                 {
                     var resizedImageBytes = await ResizeImage(updateRequest.PartImage);
@@ -364,15 +482,17 @@ namespace HomeBikeServiceAPI.Controllers
                         return StatusCode(500, new { success = false, message = "Failed to upload image to ImgBB." });
                     }
 
-                    existingPart.PartImage = imgbbUrl;
+                    existingPart.PartImage = imgbbUrl; // Update image URL
                 }
 
+                // Save the updated bike part to the database
                 var result = await _bikePartsService.UpdateBikePart(existingPart);
                 if (!result)
                 {
                     return BadRequest(new { success = false, message = "Failed to update bike part." });
                 }
 
+                // Return the updated bike part details
                 return Ok(new
                 {
                     success = true,
@@ -385,7 +505,7 @@ namespace HomeBikeServiceAPI.Controllers
                         existingPart.Description,
                         existingPart.Quantity,
                         PartImageUrl = existingPart.PartImage,
-                        existingPart.CompatibleBikes
+                        CompatibleBikesJson = existingPart.CompatibleBikesJson // Return the updated JSON
                     }
                 });
             }
@@ -394,7 +514,8 @@ namespace HomeBikeServiceAPI.Controllers
                 _logger.LogError(ex, "Error updating BikePart.");
                 return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
             }
-        }
+        }*/
+
 
         // Delete a Bike Part
         //[Authorize(Roles = "Admin")]
@@ -441,8 +562,5 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
             }
         }
-
-
-
     }
 }

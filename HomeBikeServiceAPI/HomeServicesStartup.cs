@@ -24,6 +24,7 @@ public static class HomeServicesStartup
         services.AddTransient<JobTriggerService>();
         services.AddTransient<JobService>();
         services.AddTransient<TotalSumController>();
+        services.AddHttpClient<KhaltiPaymentService>();
     }
 }
 

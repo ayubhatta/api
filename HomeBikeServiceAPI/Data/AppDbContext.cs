@@ -1,7 +1,9 @@
 ﻿using HomeBikeServiceAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using System.Text.Json;
 
 namespace HomeBikeServiceAPI.Data
 {
@@ -48,8 +50,6 @@ namespace HomeBikeServiceAPI.Data
                 .HasForeignKey<Mechanic>(m => m.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-
         }
-
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace HomeBikeServiceAPI.Models
 {
@@ -25,9 +27,21 @@ namespace HomeBikeServiceAPI.Models
 
         [Required]
         [MaxLength(1000)]
-        public string PartImage { get; set; } 
+        public string PartImage { get; set; }
 
+        // Keep CompatibleBikes as a Dictionary
+        [NotMapped] // We don’t store this directly in the DB
+        public Dictionary<string, List<string>> CompatibleBikes { get; set; } = new Dictionary<string, List<string>>();
+
+        // Store CompatibleBikes as a JSON string in the database column
         [Required]
-        public List<string> CompatibleBikes { get; set; } = new List<string>(); // New Field
+        [Column(TypeName = "NVARCHAR(MAX)")]
+        public string CompatibleBikesJson
+        {
+            get => JsonSerializer.Serialize(CompatibleBikes);
+            set => CompatibleBikes = string.IsNullOrEmpty(value)
+                ? new Dictionary<string, List<string>>()
+                : JsonSerializer.Deserialize<Dictionary<string, List<string>>>(value) ?? new Dictionary<string, List<string>>();
+        }
     }
 }

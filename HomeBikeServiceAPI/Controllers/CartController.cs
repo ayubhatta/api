@@ -163,10 +163,9 @@ namespace HomeBikeServiceAPI.Controllers
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
             return userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
         }
-        
 
 
-        // Add to Cart or Update Existing Cart Item
+
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart(CartRequest cartRequest)
         {
@@ -193,20 +192,50 @@ namespace HomeBikeServiceAPI.Controllers
             // Calculate the total price
             decimal totalPrice = cartRequest.Quantity * bikePart.Price;
 
-            // Check if the user already has this bike part in their cart
-            var existingCartItem = await _cartService.GetCartItemsByUser(userId);
-            var existingCart = existingCartItem.FirstOrDefault(c => c.BikePartsId == cartRequest.BikePartsId);
+            // Get all cart items for this user
+            var userCartItems = await _cartService.GetCartItemsByUser(userId);
 
-            if (existingCart != null)
+            // Check if user has any cart items
+            if (userCartItems.Any())
             {
-                // If the part exists in the cart, update the quantity and total price
-                existingCart.Quantity += cartRequest.Quantity;
-                existingCart.TotalPrice = existingCart.Quantity * bikePart.Price; // Recalculate the total price
+                // Check if any existing cart item has "IsPaymentDone = true"
+                var existingPaidCart = userCartItems.FirstOrDefault(c => c.IsPaymentDone);
 
-                try
+                if (existingPaidCart != null)
                 {
-                    var result = await _cartService.UpdateCartItem(existingCart);
-                    if (result)
+                    // If there's a paid cart, create a new row
+                    var newCartItem = new Cart
+                    {
+                        UserId = userId,
+                        BikePartsId = cartRequest.BikePartsId,
+                        Quantity = cartRequest.Quantity,
+                        TotalPrice = totalPrice,
+                        DateAdded = DateTime.Now,
+                        IsPaymentDone = false
+                    };
+
+                    var addResult = await _cartService.AddToCart(newCartItem);
+                    if (addResult)
+                    {
+                        return Ok(new { success = true, message = "Item added as a new cart entry." });
+                    }
+                    else
+                    {
+                        return BadRequest(new { success = false, message = "Failed to add item to cart." });
+                    }
+                }
+
+                // If there are unpaid cart items, check if the same part exists
+                var existingUnpaidCart = userCartItems.FirstOrDefault(c => c.BikePartsId == cartRequest.BikePartsId && !c.IsPaymentDone);
+
+                if (existingUnpaidCart != null)
+                {
+                    // Update quantity and total price for the existing unpaid item
+                    existingUnpaidCart.Quantity += cartRequest.Quantity;
+                    existingUnpaidCart.TotalPrice = existingUnpaidCart.Quantity * bikePart.Price;
+
+                    var updateResult = await _cartService.UpdateCartItem(existingUnpaidCart);
+                    if (updateResult)
                     {
                         return Ok(new { success = true, message = "Cart item updated successfully." });
                     }
@@ -215,40 +244,27 @@ namespace HomeBikeServiceAPI.Controllers
                         return BadRequest(new { success = false, message = "Failed to update cart item." });
                     }
                 }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, new { success = false, message = $"Internal server error: {ex.Message}" });
-                }
+            }
+
+            // If no cart items exist, create a new cart item
+            var cart = new Cart
+            {
+                UserId = userId,
+                BikePartsId = cartRequest.BikePartsId,
+                Quantity = cartRequest.Quantity,
+                TotalPrice = totalPrice,
+                DateAdded = DateTime.Now,
+                IsPaymentDone = false
+            };
+
+            var result = await _cartService.AddToCart(cart);
+            if (result)
+            {
+                return Ok(new { success = true, message = "Item added to cart successfully." });
             }
             else
             {
-                // If the part does not exist in the cart, create a new cart item
-                var cart = new Cart
-                {
-                    UserId = userId,
-                    BikePartsId = cartRequest.BikePartsId,
-                    Quantity = cartRequest.Quantity,
-                    TotalPrice = totalPrice,
-                    DateAdded = DateTime.Now,
-                    IsPaymentDone = false
-                };
-
-                try
-                {
-                    var result = await _cartService.AddToCart(cart);
-                    if (result)
-                    {
-                        return Ok(new { success = true, message = "Item added to cart successfully." });
-                    }
-                    else
-                    {
-                        return BadRequest(new { success = false, message = "Failed to add item to cart." });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, new { success = false, message = $"Internal server error: {ex.Message}" });
-                }
+                return BadRequest(new { success = false, message = "Failed to add item to cart." });
             }
         }
 

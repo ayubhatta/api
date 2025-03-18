@@ -1,4 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using Swashbuckle.AspNetCore;
+
 
 namespace HomeBikeServiceAPI.DTO
 {
@@ -21,8 +25,11 @@ namespace HomeBikeServiceAPI.DTO
 
         [Required(ErrorMessage = "Bike image is required.")]
         public IFormFile PartImage { get; set; } // File for upload
-        
+
         [Required]
-        public List<string> CompatibleBikes { get; set; } = new List<string>(); // New field
+        public string CompatibleBikesJson { get; set; }  // This is a JSON string coming from the frontend
+        //public Dictionary<string, List<string>> CompatibleBikesJson { get; set; }
+
     }
 }
+

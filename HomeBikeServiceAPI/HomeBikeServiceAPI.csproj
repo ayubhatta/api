@@ -127,11 +127,11 @@
 	  <PackageReference Include="RepoBaseModelCore" Version="1.0.0" />
 	  <PackageReference Include="Serilog" Version="4.0.1" />
 	  <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
-	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.3.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
     <Folder Include="wwwroot\BikeParts\" />
   </ItemGroup>
 

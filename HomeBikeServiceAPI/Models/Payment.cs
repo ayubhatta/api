@@ -11,9 +11,9 @@ namespace HomeBikeServiceAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Ensures auto-increment
         public int Id { get; set; } 
 
-        public string TransactionId { get; set; }
+        public string? TransactionId { get; set; }
 
-        public string Pidx { get; set; }
+        public string? Pidx { get; set; }
 
         [Required]
         public List<int> Bookings { get; set; } = new List<int>();
