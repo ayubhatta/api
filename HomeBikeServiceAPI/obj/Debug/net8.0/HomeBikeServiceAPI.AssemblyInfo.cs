@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HomeBikeServiceAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d5047caf91e5266c6329e68cd85d9e74194941c8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c59208b9d27be660644a7e5fd89334e4dc9e9774")]
 [assembly: System.Reflection.AssemblyProductAttribute("HomeBikeServiceAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HomeBikeServiceAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

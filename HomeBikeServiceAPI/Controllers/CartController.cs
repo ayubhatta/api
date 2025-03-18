@@ -326,43 +326,65 @@ namespace HomeBikeServiceAPI.Controllers
 
 
 
-        [HttpPut("pay/{cartId}")]
-        public async Task<IActionResult> MarkAsPaid(int cartId)
+        public class CartIdsRequest
+        {
+            public List<int> CartIds { get; set; }
+        }
+
+        [HttpPut("pay")]
+        public async Task<IActionResult> MarkAsPaid([FromBody] CartIdsRequest request)
         {
             int userId = GetUserIdFromToken();
             if (userId == 0) return Unauthorized("User not identified.");
 
-            // Fetch the cart items for the user
-            var cartItems = await _cartService.GetCartItemsByUser(userId);
-            var existingCart = cartItems.FirstOrDefault(c => c.Id == cartId);
-
-            // If the cart item doesn't exist or does not belong to this user
-            if (existingCart == null)
+            if (request.CartIds == null || !request.CartIds.Any())
             {
-                return NotFound(new { success = false, message = "Cart item not found or does not belong to this user." });
+                return BadRequest(new { success = false, message = "No cart IDs provided." });
             }
 
-            // Update the IsPaymentDone field to true
-            existingCart.IsPaymentDone = true;
+            // Fetch the cart items for the user
+            var cartItems = await _cartService.GetCartItemsByUser(userId);
 
-            // Save the changes
+            // Find the cart items that match the provided cart IDs
+            var cartsToUpdate = cartItems.Where(c => request.CartIds.Contains(c.Id)).ToList();
+
+            // If there are no matching cart items
+            if (cartsToUpdate.Count == 0)
+            {
+                return NotFound(new { success = false, message = "No cart items found for the provided IDs or they do not belong to this user." });
+            }
+
+            // Step 1: Update the IsPaymentDone field and the part quantities
             try
             {
-                var result = await _cartService.UpdateCartItem(existingCart);
+                var result = await _cartService.CompletePaymentAndUpdateQuantity(request.CartIds);
                 if (result)
                 {
-                    return Ok(new { success = true, message = "Payment status updated successfully." });
+                    return Ok(new { success = true, message = "Payment status updated successfully and part quantities reduced." });
                 }
                 else
                 {
-                    return BadRequest(new { success = false, message = "Failed to update payment status." });
+                    return BadRequest(new { success = false, message = "Failed to update payment status or part quantities." });
                 }
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { success = false, message = ex.Message });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = $"Internal server error: {ex.Message}" });
             }
         }
+
 
 
 

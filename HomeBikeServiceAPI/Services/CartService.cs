@@ -133,5 +133,99 @@ namespace HomeBikeServiceAPI.Services
             return true;
         }
 
+
+        public async Task<bool> UpdateCartItems(List<Cart> carts)
+        {
+            if (carts == null || !carts.Any()) return false;
+
+            foreach (var cart in carts)
+            {
+                _cartRepo.Update(cart); // Update each cart item
+            }
+
+            return await _cartRepo.SaveAsync(); // Save all updates
+        }
+
+        public async Task<bool> UpdatePartQuantities(List<Cart> carts)
+        {
+            if (carts == null || !carts.Any()) return false;
+
+            foreach (var cart in carts)
+            {
+                var bikePart = await _context.BikeParts.FindAsync(cart.BikePartsId);
+                if (bikePart != null)
+                {
+                    // Subtract the quantity purchased from the available stock
+                    bikePart.Quantity -= cart.Quantity;
+                    _context.BikeParts.Update(bikePart); // Update the bike part's quantity
+                }
+                else
+                {
+                    return false; // If part not found, return false
+                }
+            }
+
+            await _context.SaveChangesAsync(); // Commit changes to the database
+            return true; // Return true if successful
+        }
+
+
+        public async Task<bool> CompletePaymentAndUpdateQuantity(List<int> cartIds)
+        {
+            if (cartIds == null || !cartIds.Any())
+            {
+                throw new ArgumentException("No cart IDs provided."); // Throwing an exception for missing cart IDs
+            }
+
+            foreach (var cartId in cartIds)
+            {
+                // Step 1: Fetch the cart item by ID
+                var cartItem = await _context.Carts.FindAsync(cartId);
+
+                if (cartItem == null)
+                {
+                    throw new KeyNotFoundException($"Cart item with ID {cartId} not found."); // If cart item not found
+                }
+
+                // Step 2: Check if payment has already been completed
+                if (cartItem.IsPaymentDone)
+                {
+                    throw new InvalidOperationException($"Payment for cart item {cartId} has already been completed."); // If payment is already done
+                }
+
+                // Step 3: Mark the payment as done (set IsPaymentDone to true)
+                cartItem.IsPaymentDone = true;
+
+                // Step 4: Update the quantity of the bike part
+                var bikePart = await _context.BikeParts.FindAsync(cartItem.BikePartsId);
+                if (bikePart != null)
+                {
+                    // Subtract the quantity from the available stock
+                    bikePart.Quantity -= cartItem.Quantity;
+
+                    // Make sure the quantity does not go negative
+                    if (bikePart.Quantity < 0)
+                    {
+                        throw new InvalidOperationException($"Insufficient stock for BikePart {bikePart.Id}. Cannot complete the payment."); // If insufficient stock
+                    }
+
+                    _context.BikeParts.Update(bikePart); // Update the bike part
+                }
+                else
+                {
+                    throw new KeyNotFoundException($"Bike part with ID {cartItem.BikePartsId} not found."); // If bike part not found
+                }
+
+                // Step 5: Update the cart item
+                _context.Carts.Update(cartItem);
+            }
+
+            // Step 6: Save changes to the database
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
+
     }
 }
