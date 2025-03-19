@@ -124,28 +124,26 @@ namespace HomeBikeServiceAPI.BackgroundServices
         }
 
 
-        // Job for Completed status
-        public async Task CompletedJob(int bookingId)
+        public async Task CompletedJob(int bookingId, decimal totalAmount)
         {
             try
             {
-                var booking = await _context.Bookings.FindAsync(bookingId);
+                var booking = await _context.Bookings
+                    .Include(b => b.User)
+                    .FirstOrDefaultAsync(b => b.Id == bookingId);
                 if (booking == null) return;
 
-                var user = await _context.Users.FindAsync(booking.UserId);
+                var user = booking.User;
                 if (user == null || string.IsNullOrEmpty(user.Email)) return;
 
-                // If you're querying mechanics here, handle the IsAssignedTo filtering in memory
                 var mechanic = _context.Mechanics
-                    .AsEnumerable()  // Use AsEnumerable to filter in-memory
-                    .FirstOrDefault(m => m.IsAssignedTo.Contains(bookingId));
+                    .AsEnumerable()
+                    .FirstOrDefault(m => m.Id == booking.MechanicId);
 
-                if (mechanic == null) return;  // No mechanic assigned
+                if (mechanic == null) return;
 
-                // Fetch the total amount from the TotalSum API
-                decimal totalAmount = await GetTotalAmount(user.Id);
-
-                var emailBody = "<p>Dear User,</p>";
+                // Use the totalAmount passed from MarkBookingComplete instead of calling GetTotalAmount again
+                var emailBody = $"<p>Dear User,</p>";
                 emailBody += "<p>Your bike servicing has been completed.</p>";
                 emailBody += $"<p><strong>Total Amount: {totalAmount}</strong></p>";
                 emailBody += $"<p><strong>Mechanic Name: {mechanic.Name}</strong></p>";
@@ -170,20 +168,20 @@ namespace HomeBikeServiceAPI.BackgroundServices
 
 
         // Helper method to get total amount from API
-        private async Task<decimal> GetTotalAmount(int userId)
+        private async Task<decimal> GetTotalAmount(int bookingId)
         {
             try
             {
-                var response = await _httpClient.GetAsync($"https://api-rj9q.onrender.com/api/TotalSum/{userId}");
+                var response = await _httpClient.GetAsync($"http://localhost:5046/api/TotalSum/{bookingId}");
 
                 // Log the raw HTML response content
                 var responseContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning($"Received response for UserId {userId}: {responseContent}");
+                _logger.LogWarning($"Received response for bookingId {bookingId}: {responseContent}");
 
                 // Handle HTML responses gracefully (unexpected content)
                 if (response.Content.Headers.ContentType.MediaType.Equals("text/html", StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogWarning($"Received unexpected HTML content for UserId {userId}: {responseContent}");
+                    _logger.LogWarning($"Received unexpected HTML content for UserId {bookingId}: {responseContent}");
                     return 0;
                 }
 
@@ -194,7 +192,7 @@ namespace HomeBikeServiceAPI.BackgroundServices
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error fetching total amount for UserId {userId}: {ex.Message}");
+                _logger.LogError($"Error fetching total amount for UserId {bookingId}: {ex.Message}");
                 return 0;
             }
         }

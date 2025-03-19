@@ -275,7 +275,7 @@ namespace HomeBikeServiceAPI.Controllers
             var response = new
             {
                 AssignedMechanicId = existingMechanic.Id,
-                AssignedBookings = existingMechanic.Bookings.Select(b => new
+                AssignedBookings = (existingMechanic.Bookings ?? new List<Booking>()).Select(b => new
                 {
                     b.Id,
                     b.BookingAddress,
@@ -285,18 +285,18 @@ namespace HomeBikeServiceAPI.Controllers
                     b.Status,
                     b.Total,
                     b.BikeNumber,
-                    UserDetails = new
+                    UserDetails = b.User != null ? new
                     {
                         b.User.FullName,
                         b.User.Email,
                         b.User.PhoneNumber
-                    },
-                    BikeDetails = new
+                    } : null,
+                    BikeDetails = b.Bike != null ? new
                     {
                         b.Bike.BikeName,
                         b.Bike.BikeModel,
                         b.Bike.BikePrice
-                    }
+                    } : null
                 }).ToList()
             };
 
@@ -384,11 +384,6 @@ namespace HomeBikeServiceAPI.Controllers
             return Ok(new { success = true, message = "Unassigned mechanics retrieved successfully.", mechanics = unassignedMechanics });
         }
 
-
-
-
-
-
         [HttpPut("update-status/{userId}")]
         public async Task<IActionResult> UpdateMechanicStatus(int userId, [FromBody] BookingUpdateDto request)
         {
@@ -475,6 +470,8 @@ namespace HomeBikeServiceAPI.Controllers
 
             // Find the booking
             var booking = await _context.Bookings
+                .Include(b => b.User)
+                .Include(b => b.Bike)
                 .FirstOrDefaultAsync(b => request.IsAssignedTo.Contains(b.Id));
             if (booking == null)
                 return NotFound(new { message = "Associated booking not found." });
@@ -486,20 +483,22 @@ namespace HomeBikeServiceAPI.Controllers
             if (booking.Status != "In-Progress")
                 return BadRequest(new { message = "Booking status must be 'In-Progress' to mark as 'Complete'." });
 
-            // Mark booking as complete
-            booking.Status = "Complete";
+            decimal totalAmount = 0;
 
             // Calculate total amount for the booking
-            var totalAmountResponse = await _totalSumController.GetTotalAmount(booking.UserId);
+            var totalAmountResponse = await _totalSumController.GetTotalAmount(booking.Id);
             if (totalAmountResponse is OkObjectResult okResult)
             {
-                var totalAmount = ((dynamic)okResult.Value).TotalAmount;
+                totalAmount = ((dynamic)okResult.Value).TotalAmount;
                 booking.Total = totalAmount;
             }
             else
             {
-                return StatusCode(500, new { message = "Failed to calculate total amount." });
+                return StatusCode(400, new { message = "Failed to calculate total amount." });
             }
+
+            // Mark booking as complete
+            booking.Status = "Complete";
 
             // Remove the completed booking Id from the mechanic's IsAssignedTo list (stored as JSON)
             if (mechanic.IsAssignedTo != null)
@@ -511,13 +510,7 @@ namespace HomeBikeServiceAPI.Controllers
                 assignedBookings.Remove(booking.Id);
 
                 // Serialize the updated list back into a JSON string
-                mechanic.IsAssignedToJson = JsonSerializer.Serialize(assignedBookings);
-            }
-
-            // Unassign mechanic if needed
-            if (mechanic.IsAssignedTo == null || !mechanic.IsAssignedTo.Any()) // If no bookings left, set to null
-            {
-                mechanic.IsAssignedToJson = null;
+                mechanic.IsAssignedToJson = assignedBookings.Any() ? JsonSerializer.Serialize(assignedBookings) : null;
             }
 
             // Update the booking and mechanic in the database
@@ -527,7 +520,10 @@ namespace HomeBikeServiceAPI.Controllers
 
             // Trigger job for completed booking
             TimeSpan delay = TimeSpan.FromSeconds(1);
-            _jobTriggerService.TriggerCompletedJob(booking.Id, delay);
+            _jobTriggerService.TriggerCompletedJob(booking.Id, totalAmount, delay);
+
+
+
 
             // Return response
             return Ok(new

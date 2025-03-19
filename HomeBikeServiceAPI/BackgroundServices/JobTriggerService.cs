@@ -25,9 +25,11 @@ namespace HomeBikeServiceAPI.Services
         }
 
         // Trigger a delayed job for Completed status
-        public void TriggerCompletedJob(int bookingId, TimeSpan delay)
+        public void TriggerCompletedJob(int bookingId, decimal totalAmount, TimeSpan delay)
         {
-            BackgroundJob.Schedule(() => _jobService.CompletedJob(bookingId), delay);
+            BackgroundJob.Schedule(() => _jobService.CompletedJob(bookingId, totalAmount), delay);
         }
+
+
     }
 }

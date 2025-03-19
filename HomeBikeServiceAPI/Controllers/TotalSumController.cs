@@ -29,47 +29,27 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-        // Get Total Amount (Bike Parts from Cart + Booked Bike Products from BikeProducts table)
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetTotalAmount(int userId)
+        [HttpGet("{bookingId}")]
+        public async Task<IActionResult> GetTotalAmount(int bookingId)
         {
             try
             {
-                // Check if the user exists
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (user == null)
+                // Get the booking record based on BookingId
+                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId);
+                if (booking == null)
                 {
-                    return NotFound(new { success = false, message = "User not found." });
+                    return NotFound(new { success = false, message = "Booking not found." });
                 }
 
-                // Check if the user is of role "User"
-                if (user.Role != UserType.User)  // Compare with the enum value
+                // Get the bike product based on the BikeId in the Booking table
+                var bikeProduct = await _context.BikeProducts.FirstOrDefaultAsync(bp => bp.Id == booking.BikeId);
+                if (bikeProduct == null)
                 {
-                    return Unauthorized(new { success = false, message = "Access denied: User is not of type 'User'." });
+                    return NotFound(new { success = false, message = "Bike product not found." });
                 }
 
-
-                // Get total price of bike parts added to cart
-                var cartItems = await _cartService.GetCartItemsByUser(userId);
-                var cartTotal = cartItems?.Sum(c => c.BikeParts?.Price) ?? 0;
-
-                // Get total price of booked bike products from the BikeProducts table
-                var bookings = await _bookingRepo.GetAllAsync(userId);
-                decimal bookedProductsTotal = 0;
-
-                foreach (var booking in bookings)
-                {
-                    // Get the bike product based on the BikeId in the Booking table
-                    var bikeProduct = await _context.BikeProducts.FirstOrDefaultAsync(bp => bp.Id == booking.BikeId);
-
-                    if (bikeProduct != null)
-                    {
-                        bookedProductsTotal += bikeProduct.BikePrice; // Add the bike product price to the total
-                    }
-                }
-
-                // Calculate the total amount
-                var totalAmount = cartTotal + bookedProductsTotal;
+                // Total amount from the BikePrice field
+                decimal totalAmount = bikeProduct.BikePrice;
 
                 return Ok(new
                 {
@@ -84,5 +64,6 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error.", error = ex.Message });
             }
         }
+
     }
 }
