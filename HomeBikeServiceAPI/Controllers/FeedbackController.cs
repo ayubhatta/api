@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HomeBikeServiceAPI.Controllers
 {
@@ -24,6 +25,7 @@ namespace HomeBikeServiceAPI.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "User")]
         // Create Feedback
         [HttpPost("add")]
         public async Task<IActionResult> AddFeedback(FeedbackDTO feedbackDto)

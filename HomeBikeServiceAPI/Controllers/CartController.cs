@@ -16,7 +16,6 @@ namespace HomeBikeServiceAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "User")]
     public class CartController : ControllerBase
     {
         private readonly CartService _cartService;
@@ -164,7 +163,7 @@ namespace HomeBikeServiceAPI.Controllers
             return userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
         }
 
-
+        [Authorize(Roles = "User")]
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart(CartRequest cartRequest)
         {
@@ -424,7 +423,7 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-
+        [Authorize(Roles = "User")]
         // Update cart item or add new item if it does not exist
         [HttpPut("{cartId}")]
         public async Task<IActionResult> UpdateCartItem(int cartId, CartRequest cartRequest)
@@ -609,7 +608,7 @@ namespace HomeBikeServiceAPI.Controllers
 
         // Admin: Delete all carts from the carts table
         [HttpDelete("admin/all")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAllCarts()
         {
             var result = await _cartService.DeleteAllCarts();

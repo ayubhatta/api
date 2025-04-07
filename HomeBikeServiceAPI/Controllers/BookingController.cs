@@ -31,7 +31,7 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-        //[Authorize(Roles = "User")]
+        [Authorize(Roles = "User")]
         [HttpPost("add")]
         public async Task<IActionResult> AddToBooking(BookingDto bookingDto)
         {
@@ -247,6 +247,7 @@ namespace HomeBikeServiceAPI.Controllers
                 return StatusCode(500, new { success = false, message = $"Internal server error: {ex.Message}" });
             }
         }
+
 
         [HttpGet("getall")]
         public async Task<IActionResult> GetAll()

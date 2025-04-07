@@ -40,6 +40,7 @@ namespace HomeBikeServiceAPI.Controllers
             _totalSumController = totalSumController;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllMechanics()
         {
@@ -104,6 +105,8 @@ namespace HomeBikeServiceAPI.Controllers
             }
         }
 
+
+        //[Authorize(Roles = "Admin")]
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetMechanicById(int userId)
         {
@@ -187,7 +190,7 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-
+        //[Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMechanicAsync(int id, MechanicUpdateDto mechanicDto)
         {

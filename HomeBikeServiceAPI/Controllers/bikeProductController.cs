@@ -162,7 +162,7 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin")]
         // POST: api/BikeProducts/create
         [HttpPost("create")]
         public async Task<IActionResult> CreateBikeProduct(BikeProductCreateRequest request)
@@ -327,6 +327,7 @@ namespace HomeBikeServiceAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         // PUT: api/BikeProducts/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBikeProduct(int id, [FromForm] BikeProductCreateRequest request)
@@ -383,6 +384,7 @@ namespace HomeBikeServiceAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         // DELETE: api/BikeProducts/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBikeProduct(int id)
@@ -414,6 +416,7 @@ namespace HomeBikeServiceAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-all")]
         public async Task<IActionResult> DeleteAll()
         {

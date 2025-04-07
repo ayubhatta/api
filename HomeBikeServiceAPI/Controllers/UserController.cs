@@ -78,7 +78,7 @@ namespace HomeBikeServiceAPI.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<List<UserResponseDto>>> GetAllUsersAsync()
         {
@@ -315,7 +315,7 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-        
+        [Authorize(Roles = "Admin")]
         [HttpPut("UpdateUserRoleToMechanic/{id}")]
         public async Task<IActionResult> UpdateUserRoleToMechanic(int id)
         {
@@ -502,6 +502,7 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-all")]
         public async Task<IActionResult> DeleteAllUsers()
         {
