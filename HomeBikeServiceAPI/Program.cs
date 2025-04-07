@@ -94,14 +94,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 return Task.CompletedTask;
             },
             OnTokenValidated = context =>
-            {
+            {   
                 Console.WriteLine("Token validated successfully.");
                 return Task.CompletedTask;
             }
         };
     });
 
-// Enable Authorization
+// Enable Authoriza     tion
 builder.Services.AddAuthorization();
 
 // Enable CORS to allow all origins and credentials
@@ -109,7 +109,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
     {
-        builder.WithOrigins("http://localhost:3000", "http://192.168.1.82:5046") // Replace with your frontend URL(s)
+        builder.WithOrigins("http://localhost:3000", "http://192.168.1.82:5046", "https://master.d2e3pkbuu9gn4b.amplifyapp.com/") // Replace with your frontend URL(s)
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();  // Allow credentials
@@ -164,13 +164,6 @@ app.UseStaticFiles(new StaticFileOptions
 
 // Map controllers to handle API requests
 app.MapControllers();
-
-// Testing Hangfire background job (scheduling a test job)
-app.Lifetime.ApplicationStarted.Register(() =>
-{
-    Console.WriteLine("Application Started: Scheduling Hangfire Job");
-    BackgroundJob.Enqueue(() => Console.WriteLine("Test Job Triggered"));
-});
 
 // Start the application
 app.Run();
