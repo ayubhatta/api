@@ -315,7 +315,7 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPut("UpdateUserRoleToMechanic/{id}")]
         public async Task<IActionResult> UpdateUserRoleToMechanic(int id)
         {
