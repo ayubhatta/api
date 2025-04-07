@@ -142,8 +142,7 @@
               "RelativeToolTip": "HomeBikeServiceAPI\\appsettings.json",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAGAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-03-25T06:13:15.353Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-25T06:13:15.353Z"
             },
             {
               "$type": "Document",
@@ -165,7 +164,7 @@
               "RelativeDocumentMoniker": "HomeBikeServiceAPI\\Program.cs",
               "ToolTip": "C:\\Users\\bhatt\\source\\repos\\HomeBikeServiceAPI\\HomeBikeServiceAPI\\Program.cs",
               "RelativeToolTip": "HomeBikeServiceAPI\\Program.cs",
-              "ViewState": "AQIAAGAAAAAAAAAAAAAAAHsAAAAkAAAA",
+              "ViewState": "AQIAAGAAAAAAAAAAAAAAAHYAAAAfAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-25T06:09:51.594Z",
               "EditorCaption": ""

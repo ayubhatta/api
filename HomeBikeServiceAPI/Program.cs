@@ -109,7 +109,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
     {
-        builder.WithOrigins("http://localhost:3000", "http://192.168.1.82:5046", "https://master.d2e3pkbuu9gn4b.amplifyapp.com/") // Replace with your frontend URL(s)
+        builder.WithOrigins("http://localhost:3000", "http://192.168.1.82:5046", "https://master.d2e3pkbuu9gn4b.amplifyapp.com") // Replace with your frontend URL(s)
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();  // Allow credentials
