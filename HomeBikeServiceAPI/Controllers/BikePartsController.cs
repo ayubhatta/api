@@ -235,72 +235,10 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-
-
-
-        /*
-                [HttpGet]
-                public async Task<IActionResult> GetAllBikeParts()
-                {
-                    try
-                    {
-                        // Get all bike parts from the service
-                        var bikeParts = await _bikePartsService.GetAllBikeParts();
-
-                        // Group by CompatibleBikesJson (which is a dictionary in JSON format)
-                        var groupedParts = bikeParts
-                            .GroupBy(bp => bp.CompatibleBikesJson)  // Group parts by the CompatibleBikesJson
-                            .Select(group =>
-                            {
-                                // Deserialize CompatibleBikesJson to a dictionary
-                                var compatibleBikes = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(group.Key);
-
-                                // Extract brand names (keys from the dictionary)
-                                var bikeBrands = compatibleBikes.Keys.ToList();
-
-                                return new
-                                {
-                                    // Bike brand (we use the first key as the brand)
-                                    bikeBrand = bikeBrands.First(),
-                                    bikeModels = bikeBrands
-                                        .Select(brand => new
-                                        {
-                                            bikeModel = brand,  // Brand name (use the key as the bike model)
-                                            parts = group
-                                                .Where(bp => bp.CompatibleBikesJson.Contains(brand))  // Filter parts for that model
-                                                .GroupBy(bp => bp.Id)  // Group parts by ID to avoid duplication
-                                                .Select(partGroup => new
-                                                {
-                                                    part = partGroup.First(),
-                                                    parts = partGroup.Select(bp => new
-                                                    {
-                                                        bp.Id,
-                                                        bp.PartName,
-                                                        bp.Price,
-                                                        bp.Description,
-                                                        bp.Quantity,
-                                                        CompatibleBikes = bp.CompatibleBikes,  // Include CompatibleBikes dictionary
-                                                        partImageUrl = bp.PartImage  // Return the image URL for the part
-                                                    }).ToList()
-                                                }).ToList()
-                                        }).ToList()
-                                };
-                            })
-                            .ToList();
-
-                        return Ok(new { success = true, message = "Bike parts grouped by brand and model.", data = groupedParts });
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest(new { success = false, message = ex.Message });
-                    }
-                }*/
-
-
         [HttpGet]
-        public IActionResult GetGroupedBikeParts()
+        public async Task<IActionResult> GetGroupedBikeParts()
         {
-            var bikeParts = _context.BikeParts.ToList(); // Get all bike parts from the database
+            var bikeParts = await _context.BikeParts.ToListAsync(); // Get all bike parts from the database
             var groupedParts = new List<object>(); // To hold the grouped data
 
             // Group parts by the brand (keys of CompatibleBikesJson)
@@ -311,7 +249,7 @@ namespace HomeBikeServiceAPI.Controllers
                 // Deserialize the CompatibleBikesJson into a dictionary
                 var compatibleBikes = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(part.CompatibleBikesJson);
 
-                foreach (var brand in compatibleBikes.Keys)
+                foreach (var brand in compatibleBikes!.Keys)
                 {
                     // If the brand is not in the list, add it
                     if (!bikeBrands.ContainsKey(brand))

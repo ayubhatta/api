@@ -478,7 +478,7 @@ namespace HomeBikeServiceAPI.Controllers
                 var bookings = await _bookingRepo.GetAllAsync(userId); // Fetch bookings for the user
                 if (bookings.Any())
                 {
-                    _bookingRepo.DeleteRangeAsync(bookings); // Delete the bookings
+                    await _bookingRepo.DeleteRangeAsync(bookings); // Delete the bookings
                     await _bookingRepo.SaveAsync(); // Save changes
                 }
 
