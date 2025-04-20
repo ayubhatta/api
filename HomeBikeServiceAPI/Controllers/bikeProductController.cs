@@ -8,13 +8,7 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using HomeBikeServiceAPI.Services;
-using Microsoft.AspNetCore.Hosting;
 
 namespace HomeBikeServiceAPI.Controllers
 {

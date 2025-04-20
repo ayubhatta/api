@@ -1,14 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using HomeBikeServiceAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
-using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-using Microsoft.IdentityModel.Tokens;
 using HomeBikeServiceAPI.Data;
 using HomeBikeServiceAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;

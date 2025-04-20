@@ -1,11 +1,6 @@
 ﻿using HomeBikeServiceAPI.Services;
 using HomeBikeServiceAPI.Repositories;
-using HomeBikeServiceAPI.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using HomeBikeServiceAPI.Data;
 
