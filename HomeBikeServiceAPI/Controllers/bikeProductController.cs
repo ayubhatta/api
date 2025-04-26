@@ -378,7 +378,7 @@ namespace HomeBikeServiceAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         // DELETE: api/BikeProducts/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBikeProduct(int id)
@@ -399,6 +399,11 @@ namespace HomeBikeServiceAPI.Controllers
                     System.IO.File.Delete(imagePath);
                 }*/
 
+                var relatedBookings = _context.Bookings
+                                                    .Where(b => b.BikeId == id)
+                                                    .ToList();
+
+                _context.Bookings.RemoveRange(relatedBookings); // Remove related bookings
                 _context.BikeProducts.Remove(bike);
                 await _context.SaveChangesAsync();
 
