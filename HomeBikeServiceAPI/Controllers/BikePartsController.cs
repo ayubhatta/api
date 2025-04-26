@@ -141,13 +141,13 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-        private string GetImageUrl(string fileName)
+        private string? GetImageUrl(string fileName)
         {
             return string.IsNullOrEmpty(fileName) ? null : $"{Request.Scheme}://{Request.Host}/Images/BikeParts/{fileName}";
         }
 
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromForm] BikePartCreateRequest bikePart)
         {
