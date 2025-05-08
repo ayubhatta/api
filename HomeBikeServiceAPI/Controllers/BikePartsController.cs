@@ -147,7 +147,7 @@ namespace HomeBikeServiceAPI.Controllers
         }
 
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromForm] BikePartCreateRequest bikePart)
         {
